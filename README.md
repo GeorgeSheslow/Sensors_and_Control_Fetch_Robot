@@ -8,5 +8,7 @@ Software:
 
 Packages:
 
-- fetch_gazebo
-- 
+- fetch_gazebo (forked)
+- simple_gasping pkg ?
+
+- Ensure all dependicies are downloaded
