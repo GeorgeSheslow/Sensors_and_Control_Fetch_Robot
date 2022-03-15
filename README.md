@@ -13,4 +13,4 @@ Packages:
 - Ensure all dependicies are downloaded
 
 
-1. Add fetch_robot_sim to catkin_ws and test gazebo loads properly
+1. Try roslaunch fetch_gazebo simulation.launch
