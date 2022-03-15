@@ -9,6 +9,6 @@ Software:
 Packages:
 
 - fetch_gazebo (forked)
-- simple_gasping pkg ?
+- simple_grasping pkg ?
 
 - Ensure all dependicies are downloaded
