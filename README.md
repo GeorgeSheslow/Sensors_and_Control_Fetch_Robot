@@ -8,7 +8,9 @@ Software:
 
 Packages:
 
-- fetch_gazebo (forked)
-- simple_grasping pkg ?
+- download fetch_gazebo and add to catkin_ws
 
 - Ensure all dependicies are downloaded
+
+
+1. Add fetch_robot_sim to catkin_ws and test gazebo loads properly
