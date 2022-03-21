@@ -17,6 +17,10 @@
 <node name="table_spawn_urdf" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
 args="-file $(find fetch_robot_sim)/models/table/table.sdf -sdf -x 1.5 -y 0 -z 0  -R 0 -P 0 -Y 1.57 -model table"/>
 
+<node name="large_cube_spawn_urdf" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+args="-file $(find fetch_robot_sim)/models/cylinder/cylinder.sdf -sdf -x 1.5 -y 0 -z 1.5  -R 0 -P 0 -Y 1.57 -model large_cube"/>
+
+
   <!-- Oh, you wanted a robot? -->
   <include file="$(find fetch_gazebo)/launch/include/$(arg robot).launch.xml" />
 
