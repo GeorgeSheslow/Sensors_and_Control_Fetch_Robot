@@ -159,7 +159,7 @@
        </widget>
       </item>
       <item row="4" column="0" colspan="2">
-       <widget class="QPushButton" name="pushButton_4">
+       <widget class="QPushButton" name="Arm_Reset_Button">
         <property name="text">
          <string>Reset Arm</string>
         </property>
