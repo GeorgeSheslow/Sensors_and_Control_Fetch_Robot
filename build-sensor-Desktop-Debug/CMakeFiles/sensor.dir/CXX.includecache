@@ -6,7 +6,9 @@
 
 #IncludeRegexTransform: 
 
-/home/paul/git/Sensors_and_Control_Fetch_Robot/build-sensor-Desktop-Debug/sensor_autogen/mocs_compilation.cpp
+/home/paul/git/Sensors_and_Control_Fetch_Robot/sensor/main.cpp
+sensor.h
+/home/paul/git/Sensors_and_Control_Fetch_Robot/sensor/sensor.h
 
 /home/paul/git/Sensors_and_Control_Fetch_Robot/sensor/sensor.cpp
 sensor.h
@@ -15,7 +17,23 @@ ros/ros.h
 /home/paul/git/Sensors_and_Control_Fetch_Robot/sensor/ros/ros.h
 std_msgs/String.h
 /home/paul/git/Sensors_and_Control_Fetch_Robot/sensor/std_msgs/String.h
+std_msgs/Int32.h
+/home/paul/git/Sensors_and_Control_Fetch_Robot/sensor/std_msgs/Int32.h
+std_msgs/Int32MultiArray.h
+/home/paul/git/Sensors_and_Control_Fetch_Robot/sensor/std_msgs/Int32MultiArray.h
+iostream
+-
 sstream
+-
+stdio.h
+-
+unistd.h
+-
+vector
+-
+algorithm
+-
+math.h
 -
 
 /home/paul/git/Sensors_and_Control_Fetch_Robot/sensor/sensor.h

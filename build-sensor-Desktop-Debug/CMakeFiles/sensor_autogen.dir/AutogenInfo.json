@@ -68,6 +68,10 @@
 	"SOURCES" : 
 	[
 		[
+			"/home/paul/git/Sensors_and_Control_Fetch_Robot/sensor/main.cpp",
+			"MU"
+		],
+		[
 			"/home/paul/git/Sensors_and_Control_Fetch_Robot/sensor/sensor.cpp",
 			"MU"
 		]

@@ -136,6 +136,33 @@ sensor_autogen/fast:
 	$(MAKE) -f CMakeFiles/sensor_autogen.dir/build.make CMakeFiles/sensor_autogen.dir/build
 .PHONY : sensor_autogen/fast
 
+main.o: main.cpp.o
+
+.PHONY : main.o
+
+# target to build an object file
+main.cpp.o:
+	$(MAKE) -f CMakeFiles/sensor.dir/build.make CMakeFiles/sensor.dir/main.cpp.o
+.PHONY : main.cpp.o
+
+main.i: main.cpp.i
+
+.PHONY : main.i
+
+# target to preprocess a source file
+main.cpp.i:
+	$(MAKE) -f CMakeFiles/sensor.dir/build.make CMakeFiles/sensor.dir/main.cpp.i
+.PHONY : main.cpp.i
+
+main.s: main.cpp.s
+
+.PHONY : main.s
+
+# target to generate assembly for a file
+main.cpp.s:
+	$(MAKE) -f CMakeFiles/sensor.dir/build.make CMakeFiles/sensor.dir/main.cpp.s
+.PHONY : main.cpp.s
+
 sensor.o: sensor.cpp.o
 
 .PHONY : sensor.o
@@ -200,6 +227,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... sensor"
 	@echo "... sensor_autogen"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
 	@echo "... sensor.o"
 	@echo "... sensor.i"
 	@echo "... sensor.s"

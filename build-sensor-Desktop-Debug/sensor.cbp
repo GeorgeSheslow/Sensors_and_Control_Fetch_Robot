@@ -111,6 +111,9 @@
 		<Unit filename="/home/paul/git/Sensors_and_Control_Fetch_Robot/build-sensor-Desktop-Debug/sensor_autogen/mocs_compilation.cpp">
 			<Option target="sensor"/>
 		</Unit>
+		<Unit filename="/home/paul/git/Sensors_and_Control_Fetch_Robot/sensor/main.cpp">
+			<Option target="sensor"/>
+		</Unit>
 		<Unit filename="/home/paul/git/Sensors_and_Control_Fetch_Robot/sensor/sensor.cpp">
 			<Option target="sensor"/>
 		</Unit>
