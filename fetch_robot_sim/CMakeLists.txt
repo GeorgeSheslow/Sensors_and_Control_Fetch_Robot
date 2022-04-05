@@ -22,18 +22,18 @@ link_directories(
   ${GAZEBO_LIBRARY_DIRS}
 )
 
-catkin_package(
-  CATKIN_DEPENDS
-    control_toolbox
-    gazebo_plugins
-    gazebo_ros
-    robot_controllers
-    robot_controllers_interface
-  LIBRARIES
-    fetch_gazebo_plugin
-  INCLUDE_DIRS
-    include
-)
+# catkin_package(
+#   CATKIN_DEPENDS
+#     control_toolbox
+#     gazebo_plugins
+#     gazebo_ros
+#     robot_controllers
+#     robot_controllers_interface
+#   LIBRARIES
+#     fetch_gazebo_plugin
+#   INCLUDE_DIRS
+#     include
+# )
 
 # add_library(fetch_gazebo_plugin src/plugin.cpp)
 # target_link_libraries(fetch_gazebo_plugin

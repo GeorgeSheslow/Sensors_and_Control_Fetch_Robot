@@ -1,6 +1,10 @@
 #!/usr/bin/env python
+from cmath import pi
 import os
 import sys
+
+import rospy
+import actionlib
 
 from PyQt5 import uic, QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import (
@@ -14,94 +18,57 @@ from PyQt5.QtWidgets import (
 from PyQt5 import uic
 
 from teleop import TeleOp
-from cameras import Cameras
-from sim.fetch import Robot
-from sim.teleop_twist_keyboard import PublishThread
+from camera_viz import Cameras
+from fetch import Robot
+
+from sensor_msgs.msg import JointState
+
+import math
+
 #from scripts.sim.fetch import Robot
 
 class GUI(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
+        self.currentJointStates = 0
 
+        rospy.init_node("gui", anonymous=True)
+
+        rospy.Subscriber("joint_states", JointState, self.jointCallback)
         uic.loadUi("ui/control.ui", self)
-
-        self.cameras = Cameras()
-        self.teleop = TeleOp()
 
         self.fetch = Robot("Fetchy")
 
-        self.robot_move_control = PublishThread(0)
+        #self.cameras = Cameras()
+        self.teleop = TeleOp(self, self.fetch)
+        self.show()
 
-        self.layout.addWidget(self.cameras)
+        #self.layout.addWidget(self.cameras)
         self.layout.addWidget(self.teleop)
 
-        self.show()
-        
-        self.Arm_Reset_Button.clicked.connect(self.robo_arm_reset)
-        self.teleop.J1_Slider.sliderReleased.connect(self.robo_J1_update)
-        self.teleop.J2_Slider.sliderReleased.connect(self.robo_J2_update)
-        self.teleop.J3_Slider.sliderReleased.connect(self.robo_J3_update)
-        self.teleop.J4_Slider.sliderReleased.connect(self.robo_J4_update)
-        self.teleop.J5_Slider.sliderReleased.connect(self.robo_J5_update)
-        self.teleop.J6_Slider.sliderReleased.connect(self.robo_J6_update)
-        self.teleop.J7_Slider.sliderReleased.connect(self.robo_J7_update)
 
-        self.teleop.Head_Slider.sliderReleased.connect(self.robo_head_update)
-        self.teleop.Bellow_Slider.sliderReleased.connect(self.robo_bellow_update)
-        self.teleop.Gripper_Slider.sliderReleased.connect(self.robo_gripper_update)
+    def jointCallback(self, data):
+        self.currentJointStates = data.position
+        self.J1_label.setText(self.returnDegreesString(1,data.position[0]))
+        self.J2_label.setText(self.returnDegreesString(2,data.position[1]))
+        self.J3_label.setText(self.returnDegreesString(3,data.position[2]))
+        self.J4_label.setText(self.returnDegreesString(4,data.position[3]))
+        self.J5_label.setText(self.returnDegreesString(5,data.position[4]))
+        self.J6_label.setText(self.returnDegreesString(6,data.position[5]))
+        self.J7_label.setText(self.returnDegreesString(7,data.position[6]))
 
-        self.teleop.Forward_Button.clicked.connect(self.robo_move_forward)
-        self.teleop.Back_Button.clicked.connect(self.robo_move_back)
-        # Add rotation buttons and commands
 
-    def robo_arm_reset(self):
-        self.fetch.reset_arm()
-
-    # values from slider goes from int 0 -> 99
-    def robo_J1_update(self):
-        print("updating joint")
-        print(self.teleop.J1_Slider.value())
-        self.fetch.update_arm_joints(0,self.teleop.J1_Slider.value())
-
-    def robo_J2_update(self):
-        self.fetch.update_arm_joints(1,self.teleop.J2_Slider.value())
-
-    def robo_J3_update(self):
-        self.fetch.update_arm_joints(2,self.teleop.J3_Slider.value())
-
-    def robo_J4_update(self):
-        self.fetch.update_arm_joints(3,self.teleop.J4_Slider.value())
-
-    def robo_J5_update(self):
-        self.fetch.update_arm_joints(4,self.teleop.J5_Slider.value())
-
-    def robo_J6_update(self):
-        self.fetch.update_arm_joints(5,self.teleop.J6_Slider.value())
-
-    def robo_J7_update(self):
-        self.fetch.update_arm_joints(6,self.teleop.J7_Slider.value())
-
-    def robo_head_update(self):
-        pass
-
-    def robo_bellow_update(self):
-        pass
-
-    def robo_gripper_update(self):
-        pass
-
-    
-    def robo_move_forward(self):
-        pass
-
-    def robo_move_back(self):
-        pass
+    def returnDegreesString(self,joint_num, rads):
+        #"{:.1f}".format(data)
+        temp = "J" + str(joint_num) + ": "
+        temp += str("{:.1f}".format(rads * (180/math.pi)))
+        return temp
 
 def main(args=None):
 
     app = QApplication(sys.argv)
     window = GUI()
-    app.exec_()
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
