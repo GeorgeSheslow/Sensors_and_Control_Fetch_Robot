@@ -3,7 +3,9 @@
 
 #include "ros/ros.h"
 #include "std_msgs/String.h"
-#include "sensor_msgs/Images.h"
+#include "sensor_msgs/Image.h"
+#include "sensor_msgs/PointCloud.h"
+
 
 class Sensor{
 public:
@@ -11,10 +13,10 @@ public:
 
     Sensor(ros::NodeHandle n);
 
-    void depthRaw(const sensor_msgs::);
-    void baseScan();
-    void depthDownPoints();
-    void rgbRaw();
+    void depthRaw(const sensor_msgs::Images& msgImg);
+    //void baseScan(const sensor_msgs::Images& msgImg);
+    //void depthDownPoints(const sensor_msgs::Images& msgDP);
+    void rgbRaw(const sensor_msgs::Images& msgImg);
 protected:
     ros::Nodehandle n_;
 
@@ -34,10 +36,11 @@ private:
     int LastY_;
 
     ros::Subscriber sub1_;
-    ros::Subscriber sub2_;
-    ros::Subscriber sub3_;
+    //ros::Subscriber sub2_;
+    //ros::Subscriber sub3_;
     ros::Subscriber sub4_;
-    ros::Publisher pub_;
+    ros::Publisher pub1_;
+    ros::Publisher pub2_
 
 };
 

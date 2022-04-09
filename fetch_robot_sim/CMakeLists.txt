@@ -31,8 +31,8 @@ catkin_package(
     robot_controllers_interface
   LIBRARIES
     fetch_gazebo_plugin
-  INCLUDE_DIRS
-    include
+  #INCLUDE_DIRS
+    #include
 )
 
 # add_library(fetch_gazebo_plugin src/plugin.cpp)
