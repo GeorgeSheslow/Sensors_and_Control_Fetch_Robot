@@ -3,6 +3,12 @@ import sys
 import rospy
 from PyQt5 import uic, QtCore, QtWidgets, QtGui
 
+import sys
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+import cv2
+from sensor_msgs.msg import Image # Image is the message type
 from PyQt5.QtWidgets import (
     QApplication,
     QDesktopWidget,
@@ -13,25 +19,51 @@ from PyQt5.QtWidgets import (
 
 from PyQt5 import uic
 
+from cv_bridge import CvBridge, CvBridgeError
+import cv2
+import roslib
 class Cameras(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        rospy.init_node("gui_cameras")
+
         uic.loadUi("ui/cameras.ui", self)
         self.show()
 
+        self.thread = QThread()
+        self.worker = image_converter()
+        self.worker.moveToThread(self.thread)
+        rospy.Subscriber("/head_camera/rgb/image_raw",Image,self.worker.run)
+        self.thread.start()
+        self.worker.ImageUpdate.connect(self.ImageUpdateSlot)
+
+    def ImageUpdateSlot(self, Image):
+        self.FeedLabel.setPixmap(QPixmap.fromImage(Image))
+
+
+class image_converter(QObject):
+    ImageUpdate = pyqtSignal(QImage)
+    bridge = CvBridge()
+
+    def run(self,data):
+        self.ThreadActive = True
+        
+        while self.ThreadActive:
+            cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+            FlippedImage = cv2.flip(image, 1)
+            ConvertToQtFormat = QImage(FlippedImage.data, FlippedImage.shape[1], FlippedImage.shape[0], QImage.Format_RGB888)
+            Pic = ConvertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
+            self.ImageUpdate.emit(Pic)
+            self.ThreadActive = False
 
 
 
-import sys
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-import cv2
-
+#############Testing Code Below, not used############################
 class MainWindow(QWidget):
+
     def __init__(self):
         super(MainWindow, self).__init__()
+        rospy.init_node("gui_cameras")
 
         self.VBL = QVBoxLayout()
 
@@ -42,34 +74,22 @@ class MainWindow(QWidget):
         self.CancelBTN.clicked.connect(self.CancelFeed)
         self.VBL.addWidget(self.CancelBTN)
 
-        self.Worker1 = Worker1()
+        self.thread = QThread()
+        self.worker = image_converter()
+        rospy.Subscriber("/head_camera/rgb/image_raw",Image,self.worker.run)
 
-        self.Worker1.start()
-        self.Worker1.ImageUpdate.connect(self.ImageUpdateSlot)
+        self.worker.moveToThread(self.thread)
+        self.thread.start()
+
+        self.worker.ImageUpdate.connect(self.ImageUpdateSlot)
+
         self.setLayout(self.VBL)
 
     def ImageUpdateSlot(self, Image):
         self.FeedLabel.setPixmap(QPixmap.fromImage(Image))
 
     def CancelFeed(self):
-        self.Worker1.stop()
-
-class Worker1(QThread):
-    ImageUpdate = pyqtSignal(QImage)
-    def run(self):
-        self.ThreadActive = True
-        Capture = cv2.VideoCapture(0)
-        while self.ThreadActive:
-            ret, frame = Capture.read()
-            if ret:
-                Image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                FlippedImage = cv2.flip(Image, 1)
-                ConvertToQtFormat = QImage(FlippedImage.data, FlippedImage.shape[1], FlippedImage.shape[0], QImage.Format_RGB888)
-                Pic = ConvertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
-                self.ImageUpdate.emit(Pic)
-    def stop(self):
-        self.ThreadActive = False
-        self.quit()
+        self.thread.finish()
 
 if __name__ == "__main__":
     App = QApplication(sys.argv)
