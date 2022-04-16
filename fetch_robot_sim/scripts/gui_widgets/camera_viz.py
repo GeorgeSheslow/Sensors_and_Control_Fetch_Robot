@@ -26,13 +26,13 @@ class Cameras(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
-        uic.loadUi("ui/cameras.ui", self)
+        uic.loadUi("gui_widgets/ui/cameras.ui", self)
         self.show()
 
         self.thread = QThread()
         self.worker = image_converter()
         self.worker.moveToThread(self.thread)
-        rospy.Subscriber("/head_camera/rgb/image_raw",Image,self.worker.run)
+        rospy.Subscriber("/bounding_image",Image,self.worker.run)
         self.thread.start()
         self.worker.ImageUpdate.connect(self.ImageUpdateSlot)
 

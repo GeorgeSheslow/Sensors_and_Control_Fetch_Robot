@@ -102,23 +102,16 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="TeleOp_Button">
-        <property name="text">
-         <string>TeleOp</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="Auto_Button">
-        <property name="text">
-         <string>Autonomous</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="Arm_Reset_Button">
         <property name="text">
          <string>Reset Arm</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="Grasp_Prep_Button">
+        <property name="text">
+         <string>Grasp Prep</string>
         </property>
        </widget>
       </item>
@@ -176,9 +169,37 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLabel" name="label_4">
+       <widget class="QPushButton" name="Find_Obj_Button">
+        <property name="text">
+         <string>Scan for Object</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="obj_detect_label">
         <property name="text">
          <string>Obj Detected:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="obj_camera">
+        <property name="text">
+         <string>Obj Camera Pose (x,y,z):</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="obj_camera_label">
+        <property name="text">
+         <string>values NA</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="obj_robot_label">
+        <property name="text">
+         <string>Obj Robot Pose:</string>
         </property>
        </widget>
       </item>
@@ -194,6 +215,13 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="Kinematics_Button">
+        <property name="text">
+         <string>Find Gripper Pose</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLabel" name="label_3">
@@ -216,9 +244,9 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLabel" name="label_6">
+       <widget class="QPushButton" name="Grasp_Button">
         <property name="text">
-         <string>Robot Pose:</string>
+         <string>Grasp Object</string>
         </property>
        </widget>
       </item>

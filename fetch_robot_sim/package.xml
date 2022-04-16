@@ -14,6 +14,7 @@
 
   <build_depend>angles</build_depend>
   <build_depend>gazebo_dev</build_depend>
+  <build_depend>message_generation</build_depend>
 
   <depend>control_toolbox</depend>
   <depend>boost</depend>
@@ -39,5 +40,6 @@
   <exec_depend>xacro</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>topic_tools</exec_depend>
-
+  <exec_depend>message_runtime</exec_depend>
+  
 </package>

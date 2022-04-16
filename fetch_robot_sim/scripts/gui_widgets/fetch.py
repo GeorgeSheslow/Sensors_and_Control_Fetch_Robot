@@ -36,7 +36,7 @@ class Robot():
         self.joint_positions = [0.0, -0.62, 0, 0, 0.0, 0.62, 0.0]
         # Saved Joint Positions
         self.joint_zero_position = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        self.joint_pre_grasp_position = [1.32, 0.7, 0.0, -2.0, 0.0, -0.57, 0.0]
+        self.joint_pre_grasp_position = [1.57, 0.7, 0.0, -2.0, 0.0, -0.57, 0.0]
 
         self.jointMax = [math.pi/2, math.pi/2, math.pi/2, math.pi/2, math.pi,math.pi/2, math.pi/2]
         self.jointMin = [-math.pi/2, -math.pi/2, -math.pi/2, -math.pi/2, -math.pi, -math.pi/2, -math.pi/2]
@@ -142,7 +142,6 @@ class Robot():
         self.arm_client.wait_for_result(rospy.Duration(5.0))
 
     def execute_head_update(self):
-        print("head upate")
         trajectory = JointTrajectory()
         trajectory.joint_names = self.head_joint_names
         trajectory.points.append(JointTrajectoryPoint())

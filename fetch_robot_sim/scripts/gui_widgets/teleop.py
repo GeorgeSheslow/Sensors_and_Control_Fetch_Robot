@@ -22,7 +22,7 @@ class TeleOp(QWidget):
     def __init__(self,gui, fetch, parent=None) -> None:
         super().__init__(parent)
         self.gui = gui
-        uic.loadUi("ui/teleop.ui", self)
+        uic.loadUi("gui_widgets/ui/teleop.ui", self)
         self.show()
 
         self.fetch = fetch
@@ -53,7 +53,7 @@ class TeleOp(QWidget):
         self.Head_Slider.setValue(self.fetch.currentJointStates[5])
 
 
-        self.Bellow_Slider.setValue(100* (0.4/self.fetch.currentJointStates[2]))
+        self.Bellow_Slider.setValue(100* (self.fetch.currentJointStates[2]/0.4))
         
         # Set gripper to open
         self.fetch.update_gripper(100)
@@ -108,17 +108,13 @@ class TeleOp(QWidget):
 
     
     def moveForward(self):
-        print("forward")
         self.fetch.execute_twist(1,0)
 
     def moveBack(self):
-        print("Back")
         self.fetch.execute_twist(-1,0)
 
     def moveCCW(self):
-        print("CCW")
         self.fetch.execute_twist(0,1)
 
     def moveCW(self):
-        print("CW")
         self.fetch.execute_twist(0,-1)

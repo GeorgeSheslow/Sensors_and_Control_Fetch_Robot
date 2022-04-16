@@ -1,14 +1,28 @@
 cmake_minimum_required(VERSION 3.7.2)
 project(fetch_robot_sim)
-
+find_package(catkin REQUIRED)
 find_package(Boost REQUIRED)
 find_package(gazebo REQUIRED)
+
 
 find_package(catkin
   REQUIRED
     gazebo_ros
     fetch_gazebo
+    roscpp
+    rospy
+    std_msgs
+    message_generation
 
+)
+
+add_message_files(
+  FILES
+  Obj_Detect.msg
+)
+generate_messages(
+  DEPENDENCIES
+  std_msgs
 )
 
 include_directories(
@@ -21,6 +35,11 @@ include_directories(
 link_directories(
   ${GAZEBO_LIBRARY_DIRS}
 )
+
+catkin_package(
+  CATKIN_DEPENDS message_runtime
+)
+
 
 # catkin_package(
 #   CATKIN_DEPENDS
