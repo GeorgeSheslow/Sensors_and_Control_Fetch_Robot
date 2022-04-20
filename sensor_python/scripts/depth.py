@@ -19,7 +19,7 @@ class Depth_Detection:
         
         
         self.depth_sub =rospy.Subscriber("/head_camera/depth_registered/image_raw",Image,self.cameraDepthCallBack)
-        self.depth_sub =rospy.Subscriber("Point_Center",Location,self.cameraDepthCallBack)
+        self.location_sub =rospy.Subscriber("Point_Center",Location,self.cameraDepthCallBack)
         
         self.detect_object = rospy.Publisher("object_info", Object_Info, queue_size=10)
         self.depth_dist = rospy.Publisher("distance",float, queue_size=10)
@@ -31,6 +31,7 @@ class Depth_Detection:
             x = float(self.x)
             y = float(self.y)
             self.z = cv_cap[x,y] 
+            self.depth_dist.publish(self.z)
             
             object = Object_Info()
             object.x = float(self.x)
