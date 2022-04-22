@@ -63,7 +63,7 @@ class RGB_Detection:
             output_red = cv2.bitwise_and(frame,frame, mask= red_mask)
             output_green = cv2.bitwise_and(frame,frame, mask= green_mask)
             
-            # Creating contour to track red color 
+            # Creating contour to track red colour 
             contours, hierarchy = cv2.findContours(red_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) 
             
             #array of vector with x,y location
@@ -80,7 +80,7 @@ class RGB_Detection:
                     
                     cv2.putText(frame, "Red Colour", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255))	 
 
-            # Creating contour to track green color 
+            # Creating contour to track green colour 
             contours, hierarchy = cv2.findContours(green_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) 
             
             for pic, contour in enumerate(contours): 
@@ -94,7 +94,7 @@ class RGB_Detection:
                 
                     cv2.putText(frame, "Green Colour", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0)) 
 
-            # Creating contour to track blue color 
+            # Creating contour to track blue colour 
             contours, hierarchy = cv2.findContours(blue_mask, cv2.RETR_TREE,  cv2.CHAIN_APPROX_SIMPLE) 
             
             for pic, contour in enumerate(contours): 
@@ -109,15 +109,7 @@ class RGB_Detection:
                     cv2.putText(frame, "Blue Colour", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0)) 
                 
             # Program Termination 
-            cv2.imshow("Multiple Color Detection in Real-TIme", frame) 
-            
-            
-            
-            # Write the frame into the file 'captured_video.avi'
-            #video_output.write(output)
-
-            # Display the frame, saved in the file   
-            #cv2.imshow('output',output)
+            cv2.imshow("Multiple Color Detection", frame)                         
 
             # Press Q on keyboard to stop recording
             cv2.waitKey(1)
@@ -128,7 +120,6 @@ class RGB_Detection:
         cv2.waitKey(3)
         
         
-            
 
 # release video capture
 # and video write objects
