@@ -1,0 +1,46 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/opt/ros/noetic/include/**",
+        "/home/vanessaleung/catkin_ws/devel/include/**",
+        "/home/vanessaleung/catkin_ws/src/moveit/moveit_planners/chomp/chomp_motion_planner/include/**",
+        "/home/vanessaleung/catkin_ws/src/dobot_magician_driver/include/**",
+        "/home/vanessaleung/catkin_ws/src/fetch_gazebo/fetch_gazebo/include/**",
+        "/home/vanessaleung/catkin_ws/src/Sensors_and_Control_Fetch_Robot/fetch_robot_sim/include/**",
+        "/home/vanessaleung/catkin_ws/src/gazebo_ros_pkgs/gazebo_plugins/include/**",
+        "/home/vanessaleung/catkin_ws/src/gazebo_ros_pkgs/gazebo_ros/include/**",
+        "/home/vanessaleung/catkin_ws/src/gazebo_ros_pkgs/gazebo_ros_control/include/**",
+        "/home/vanessaleung/catkin_ws/src/Sensors_and_Control_Fetch_Robot/iksolver/include/**",
+        "/home/vanessaleung/catkin_ws/src/moveit/moveit_planners/chomp/chomp_interface/include/**",
+        "/home/vanessaleung/catkin_ws/src/moveit_resources/prbt_ikfast_manipulator_plugin/include/**",
+        "/home/vanessaleung/catkin_ws/src/moveit/moveit_ros/benchmarks/include/**",
+        "/home/vanessaleung/catkin_ws/src/moveit/moveit_plugins/moveit_ros_control_interface/include/**",
+        "/home/vanessaleung/catkin_ws/src/moveit/moveit_ros/move_group/include/**",
+        "/home/vanessaleung/catkin_ws/src/moveit/moveit_ros/occupancy_map_monitor/include/**",
+        "/home/vanessaleung/catkin_ws/src/moveit/moveit_ros/robot_interaction/include/**",
+        "/home/vanessaleung/catkin_ws/src/moveit/moveit_ros/moveit_servo/include/**",
+        "/home/vanessaleung/catkin_ws/src/moveit/moveit_setup_assistant/include/**",
+        "/home/vanessaleung/catkin_ws/src/moveit/moveit_plugins/moveit_simple_controller_manager/include/**",
+        "/home/vanessaleung/catkin_ws/src/moveit/moveit_planners/pilz_industrial_motion_planner/include/**",
+        "/home/vanessaleung/catkin_ws/src/moveit/moveit_planners/pilz_industrial_motion_planner_testutils/include/**",
+        "/home/vanessaleung/catkin_ws/src/robot_controllers/robot_controllers/include/**",
+        "/home/vanessaleung/catkin_ws/src/robot_controllers/robot_controllers_interface/include/**",
+        "/home/vanessaleung/catkin_ws/src/rviz_visual_tools/include/**",
+        "/home/vanessaleung/catkin_ws/src/simple_grasping/include/**",
+        "/home/vanessaleung/catkin_ws/src/usb_cam/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

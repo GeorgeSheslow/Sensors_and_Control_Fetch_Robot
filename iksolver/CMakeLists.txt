@@ -31,7 +31,7 @@ find_package(catkin REQUIRED
 )
 
 find_package(Eigen3 REQUIRED)
-find_package(Boost REQUIRED system filesystem date_time thread)
+find_package(Boost REQUIRED EXACT 1.79.0 COMPONENTS system filesystem date_time thread)
 
 ###########
 ## Build ##
@@ -74,3 +74,7 @@ add_dependencies(${PROJECT_NAME}_ex ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin
 ## STUDENTS !!!
 ## It is expected you would have more libraries for your work and would need to REPLACE the below line
 target_link_libraries(${PROJECT_NAME}_ex ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+  PATTERN ".svn" EXCLUDE)
