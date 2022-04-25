@@ -10,7 +10,7 @@ from cv_bridge import CvBridge, CvBridgeError
 #from geometry_msgs.msg import Twist
 from msg import Object_Info
 from msg import Location
-
+from msg import 3DLocation
 
 class Depth_Detection:
 
@@ -22,7 +22,7 @@ class Depth_Detection:
         self.location_sub =rospy.Subscriber("Point_Center",Location,self.cameraDepthCallBack)
         
         self.detect_object = rospy.Publisher("object_info", Object_Info, queue_size=10)
-        self.depth_dist = rospy.Publisher("distance",float, queue_size=10)
+        self.location_3D = rospy.Publisher("distance",3DLocation, queue_size=10)
 
     def cameraDepthCallBack(self,data):
         try:
@@ -30,8 +30,11 @@ class Depth_Detection:
             
             x = float(self.x)
             y = float(self.y)
-            self.z = cv_cap[x,y] 
-            self.depth_dist.publish(self.z)
+            self.z = cv_cap[x,y]
+            
+            location = [x,y,self.z]
+        
+            self.location_3D.publish(location)
             
             object = Object_Info()
             object.x = float(self.x)
