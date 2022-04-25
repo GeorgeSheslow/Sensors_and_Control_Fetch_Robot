@@ -75,7 +75,7 @@ class RGB_Detection:
                     x, y, w, h = cv2.boundingRect(contour) 
                     frame = cv2.rectangle(frame, (x, y),  (x + w, y + h), (0, 0, 255), 2) 
                     
-                    midPoints = [x+w/2,y+h/2]
+                    midPoints = [x+(w/2),y+(h/2)]
                     self.pointCentre.publish(midPoints)
                     
                     cv2.putText(frame, "Red Colour", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255))	 
@@ -89,7 +89,7 @@ class RGB_Detection:
                     x, y, w, h = cv2.boundingRect(contour) 
                     frame = cv2.rectangle(frame, (x, y), (x + w, y + h),  (0, 255, 0), 2) 
                     
-                    midPoints = [x+w/2,y+h/2]
+                    midPoints = [x+(w/2),y+(h/2)]
                     self.pointCentre.publish(midPoints)
                 
                     cv2.putText(frame, "Green Colour", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0)) 
@@ -103,7 +103,7 @@ class RGB_Detection:
                     x, y, w, h = cv2.boundingRect(contour) 
                     frame = cv2.rectangle(frame, (x, y),  (x + w, y + h),  (255, 0, 0), 2) 
                     
-                    midPoints = [x+w/2,y+h/2]
+                    midPoints = [x+(w/2),y+(h/2)]
                     self.pointCentre.publish(midPoints)
                 
                     cv2.putText(frame, "Blue Colour", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0)) 
