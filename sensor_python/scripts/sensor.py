@@ -10,7 +10,7 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import String, Float64MultiArray, Float32
 from cv_bridge import CvBridge, CvBridgeError
 #from geometry_msgs.msg import Twist
-from msg import Object_Info
+#from msg import Object_Info
 from msg import Location
 
 # Create an object to read camera video 
