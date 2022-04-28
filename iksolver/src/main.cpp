@@ -16,8 +16,7 @@
 #include <ros/subscriber.h>
 
 
-
-void sensor_callback(const std_msgs::String::ConstPtr& msg){
+void sensor_callback(const std_msgs::String::ConstPtr& msg, const ros::NodeHandle& node_handle){
   // _RobotModelLoader:
   const std::string PLANNING_GROUP = "panda_arm";
   robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
@@ -46,8 +45,7 @@ void sensor_callback(const std_msgs::String::ConstPtr& msg){
     ROS_FATAL_STREAM("Could not find planner plugin name");
   try
   {
-    planner_plugin_loader.reset(new pluginlib::ClassLoader<planning_interface::PlannerManager>(
-        "moveit_core", "planning_interface::PlannerManager"));
+    planner_plugin_loader.reset(new pluginlib::ClassLoader<planning_interface::PlannerManager>("moveit_core", "planning_interface::PlannerManager"));
   }
   catch (pluginlib::PluginlibException& ex)
   {
@@ -66,8 +64,7 @@ void sensor_callback(const std_msgs::String::ConstPtr& msg){
     std::stringstream ss;
     for (const auto& cls : classes)
       ss << cls << " ";
-    ROS_ERROR_STREAM("Exception while loading planner '" << planner_plugin_name << "': " << ex.what() << std::endl
-                                                         << "Available plugins: " << ss.str());
+    ROS_ERROR_STREAM("Exception while loading planner '" << planner_plugin_name << "': " << ex.what() << std::endl << "Available plugins: " << ss.str());
   }
 
   // Visualization
@@ -106,8 +103,7 @@ void sensor_callback(const std_msgs::String::ConstPtr& msg){
   std::vector<double> tolerance_pose(3, 0.01);
   std::vector<double> tolerance_angle(3, 0.01);
 
-  moveit_msgs::Constraints pose_goal =
-      kinematic_constraints::constructGoalConstraints("panda_link8", pose, tolerance_pose, tolerance_angle);
+  moveit_msgs::Constraints pose_goal = kinematic_constraints::constructGoalConstraints("panda_link8", pose, tolerance_pose, tolerance_angle);
 
   req.group_name = PLANNING_GROUP;
   req.goal_constraints.push_back(pose_goal);
@@ -115,8 +111,7 @@ void sensor_callback(const std_msgs::String::ConstPtr& msg){
   // We now construct a planning context that encapsulate the scene,
   // the request and the response. We call the planner using this
   // planning context
-  planning_interface::PlanningContextPtr context =
-      planner_instance->getPlanningContext(planning_scene, req, res.error_code_);
+  planning_interface::PlanningContextPtr context = planner_instance->getPlanningContext(planning_scene, req, res.error_code_);
   context->solve(res);
   if (res.error_code_.val != res.error_code_.SUCCESS)
   {
@@ -126,14 +121,13 @@ void sensor_callback(const std_msgs::String::ConstPtr& msg){
 
   // Visualize the result
   // ^^^^^^^^^^^^^^^^^^^^
-  ros::Publisher display_publisher =
-      node_handle.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
+  ros::Publisher display_publisher = node_handle.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
   moveit_msgs::DisplayTrajectory display_trajectory;
 
   /* Visualize the trajectory */
   moveit_msgs::MotionPlanResponse response;
   res.getMessage(response);
-
+  
   display_trajectory.trajectory_start = response.trajectory_start;
   display_trajectory.trajectory.push_back(response.trajectory);
   visual_tools.publishTrajectoryLine(display_trajectory.trajectory.back(), joint_model_group);
@@ -158,11 +152,12 @@ int main(int argc, char** argv){
   const std::string node_name = "motion_planning_tutorial";
   ros::init(argc, argv, node_name);
   ros::AsyncSpinner spinner(1);
-  spinner.start();
-  ros::NodeHandle node_handle("~");
 
+  ros::NodeHandle node_handle;
+  
   ros::Subscriber sensor_rgb = node_handle.subscribe("point_center", 1000, sensor_callback);
   ros::Publisher ikine_pub = node_handle.advertise<std::string>("ikine", 1000);
-
+  
+  spinner.start();
   return 0;
 }
