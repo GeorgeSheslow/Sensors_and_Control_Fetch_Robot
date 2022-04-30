@@ -14,9 +14,13 @@
 
 #include <boost/scoped_ptr.hpp>
 #include <ros/subscriber.h>
+void sensor_callback(const std_msgs::String::ConstPtr& msg, ros::NodeHandle& node_handle);
+ros::NodeHandle node_handle;
+ros::Subscriber sensor_rgb = node_handle.subscribe<std::string>("point_centre", 1000, sensor_callback);
+ros::Publisher ikine_pub = node_handle.advertise<moveit_msgs::DisplayTrajectory>("ikine", 1000);
+  
 
-
-void sensor_callback(const std_msgs::String::ConstPtr& msg, const ros::NodeHandle& node_handle){
+void sensor_callback(const std_msgs::String::ConstPtr& msg, ros::NodeHandle& node_handle){
   // _RobotModelLoader:
   const std::string PLANNING_GROUP = "panda_arm";
   robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
@@ -127,6 +131,10 @@ void sensor_callback(const std_msgs::String::ConstPtr& msg, const ros::NodeHandl
   /* Visualize the trajectory */
   moveit_msgs::MotionPlanResponse response;
   res.getMessage(response);
+
+  // publish
+
+  ikine_pub.publish(response);
   
   display_trajectory.trajectory_start = response.trajectory_start;
   display_trajectory.trajectory.push_back(response.trajectory);
@@ -153,10 +161,8 @@ int main(int argc, char** argv){
   ros::init(argc, argv, node_name);
   ros::AsyncSpinner spinner(1);
 
-  ros::NodeHandle node_handle;
-  
-  ros::Subscriber sensor_rgb = node_handle.subscribe("point_center", 1000, sensor_callback);
-  ros::Publisher ikine_pub = node_handle.advertise<std::string>("ikine", 1000);
+
+
   
   spinner.start();
   return 0;
