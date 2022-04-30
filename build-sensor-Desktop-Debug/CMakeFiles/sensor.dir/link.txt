@@ -1,1 +1,0 @@
-/usr/bin/g++ -fPIC -g  -shared -Wl,-soname,libsensor.so -o libsensor.so CMakeFiles/sensor.dir/sensor_autogen/mocs_compilation.cpp.o CMakeFiles/sensor.dir/sensor.cpp.o CMakeFiles/sensor.dir/main.cpp.o  /usr/lib/x86_64-linux-gnu/libQt5Core.so.5.12.8 
