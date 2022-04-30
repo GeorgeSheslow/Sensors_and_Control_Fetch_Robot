@@ -129,7 +129,7 @@ class RGB_Detection:
 #print("The video was successfully saved")   
 
 if __name__ == '__main__':
-    rospy.init_node("CubeDetect")
+    rospy.init_node("Paul Obj Detect")
     cv_thing = RGB_Detection()
 
     while not rospy.is_shutdown():

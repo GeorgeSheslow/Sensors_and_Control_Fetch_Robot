@@ -7,9 +7,9 @@ import numpy as np
 from std_msgs.msg import String, Float64MultiArray, Float32
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
-from msg import Object_Info
-from msg import Location
-from msg import Location_3D
+from fetch_robot_sim.msg import Object_Info
+from fetch_robot_sim.msg import Location
+from fetch_robot_sim.msg import Location_3D
 
 class Depth_Detection:
 

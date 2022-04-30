@@ -19,6 +19,9 @@ find_package(catkin
 add_message_files(
   FILES
   Obj_Detect.msg
+  Location.msg
+  Location_3D.msg
+  Object_Info.msg
 )
 generate_messages(
   DEPENDENCIES
