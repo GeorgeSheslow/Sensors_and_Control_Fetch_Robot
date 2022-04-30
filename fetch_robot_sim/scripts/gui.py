@@ -20,6 +20,7 @@ from gui_widgets.fetch import Robot
 
 from fetch_robot_sim.msg import Obj_Detect
 
+
 class GUI(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -28,9 +29,10 @@ class GUI(QWidget):
 
         uic.loadUi("gui_widgets/ui/control.ui", self)
 
-
         # Subs
-        self.obj_info = rospy.Subscriber("/obj_info",Obj_Detect, self.obj_info_callback)
+        self.obj_info = rospy.Subscriber(
+            "/obj_info", Obj_Detect, self.obj_info_callback
+        )
         self.fetch = Robot("Fetchy")
 
         self.cameras = Cameras()
@@ -50,14 +52,14 @@ class GUI(QWidget):
     def grasp_prep(self):
         self.fetch.reset_arm()
         for i in range(22):
-            self.fetch.execute_twist(0.1,0)
+            self.fetch.execute_twist(0.1, 0)
             time.sleep(0.3)
 
         self.fetch.update_torso(80)
         self.fetch.update_head(50)
+
     def reset_robo_arm(self):
         self.fetch.reset_arm()
-
 
     def obj_finder(self):
         pass
@@ -68,10 +70,15 @@ class GUI(QWidget):
     def grasp_obj(self):
         pass
 
-    def obj_info_callback(self,data):
+    def obj_info_callback(self, data):
         self.obj_detect_label.setText("Obj Detected:  " + str(data.obj_name))
-        self.obj_camera_label.setText(str("{:.1f}".format(data.x)) + ", "+ str("{:.1f}".format(data.y)) + ", "+ str("{:.2f}".format(data.z)))
-
+        self.obj_camera_label.setText(
+            str("{:.1f}".format(data.x))
+            + ", "
+            + str("{:.1f}".format(data.y))
+            + ", "
+            + str("{:.2f}".format(data.z))
+        )
 
 
 def main(args=None):
