@@ -14,13 +14,16 @@
 
 #include <boost/scoped_ptr.hpp>
 #include <ros/subscriber.h>
-void sensor_callback(const std_msgs::String::ConstPtr& msg, ros::NodeHandle& node_handle);
+#include <boost/function.hpp>
+#include <ros/param.h>
+
+// void sensor_callback(const std_msgs::String::ConstPtr& msg, ros::NodeHandle& node_handle);
 ros::NodeHandle node_handle;
-ros::Subscriber sensor_rgb = node_handle.subscribe<std::string>("point_centre", 1000, sensor_callback);
+// ros::Subscriber sensor_rgb = node_handle.subscribe<std::string>("point_centre", 1000, sensor_callback);
 ros::Publisher ikine_pub = node_handle.advertise<moveit_msgs::DisplayTrajectory>("ikine", 1000);
   
 
-void sensor_callback(const std_msgs::String::ConstPtr& msg, ros::NodeHandle& node_handle){
+void sensor_callback(const std_msgs::String::ConstPtr& msg){ //, ros::NodeHandle& node_handle){
   // _RobotModelLoader:
   const std::string PLANNING_GROUP = "panda_arm";
   robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
@@ -64,7 +67,7 @@ void sensor_callback(const std_msgs::String::ConstPtr& msg, ros::NodeHandle& nod
   }
   catch (pluginlib::PluginlibException& ex)
   {
-    const std::vector<std::string>& classes = planner_plugin_loader->getDeclaredClasses();
+    // const std::vector<std::string>& classes = planner_plugin_loader->getDeclaredClasses();
     std::stringstream ss;
     for (const auto& cls : classes)
       ss << cls << " ";
