@@ -1,5 +1,0 @@
-CMakeLists.txt
-main.cpp
-sensor.cpp
-sensor.h
-sensor_global.h
