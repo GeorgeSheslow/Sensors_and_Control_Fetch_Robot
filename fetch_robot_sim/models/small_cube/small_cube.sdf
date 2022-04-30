@@ -4,7 +4,7 @@
       <static>0</static>
       <link name='link'>
         <inertial>
-          <mass>0.25</mass>
+          <mass>0.1</mass>
           <inertia>
             <ixx>0.001</ixx>
             <ixy>0.000000</ixy>
@@ -17,7 +17,7 @@
         <collision name='collision'>
           <geometry>
             <box>
-              <size>0.060 0.060 0.060</size>
+              <size>0.020 0.020 0.020</size>
             </box>
           </geometry>
           <surface>
@@ -40,7 +40,7 @@
         <visual name='visual'>
           <geometry>
             <box>
-              <size>0.060 0.060 0.060</size>
+              <size>0.020 0.020 0.020</size>
             </box>
           </geometry>
           <material>
