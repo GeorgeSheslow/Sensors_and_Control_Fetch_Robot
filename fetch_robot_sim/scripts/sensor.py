@@ -1,3 +1,4 @@
+from tkinter import Y
 import cv2
 import sys
 import os
@@ -12,10 +13,12 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import String, Float64MultiArray, Float32
 from cv_bridge import CvBridge, CvBridgeError
 
+from fetch_robot_sim.msg import Object_Info
 from fetch_robot_sim.msg import Location
+from fetch_robot_sim.msg import Location_3D
 
 # Create an object to read camera video
-class RGB_Detection:
+class RGBD_Detection:
     def __init__(self):
         self.bridge_object = CvBridge()
         self.image_sub = rospy.Subscriber(
@@ -23,25 +26,34 @@ class RGB_Detection:
         )
 
         self.pointCentre = rospy.Publisher("point_center", Location, queue_size=10)
-
+        
+        
+        self.depth_sub =rospy.Subscriber("/head_camera/depth_registered/image_raw",Image,self.cameraDepthCallBack)
+        #self.location_sub =rospy.Subscriber("point_center",Location,self.cameraDepthCallBack)
+        
+        self.detect_object = rospy.Publisher("object_info", Object_Info, queue_size=10)
+        self.location_3D = rospy.Publisher("distance",Location_3D, queue_size=10)
+        
+        self.midPoints = Location(0, 0)
+        self.z = 0
+        #self.midPoints_R 
+        #self.midPoints_B 
+        
     def cameraRGBCallBack(self, data):
         try:
             cap = self.bridge_object.imgmsg_to_cv2(data, "bgr8")
-            # ret, frame = cap.read()
-            # width = int(cap.get(3))
-            # height = int(cap.get(4))
             # Convert BGR to HSV
             hsv = cv2.cvtColor(cap, cv2.COLOR_BGR2HSV)
             # define blue colour range
             light_blue = np.array([94, 80, 2], np.uint8)
-            dark_blue = np.array([130, 255, 255], np.uint8)
+            dark_blue = np.array([126, 255, 255], np.uint8)
 
             # Threshold the HSV image to get only blue colours
             blue_mask = cv2.inRange(hsv, light_blue, dark_blue)
 
             # define red colour range
-            light_red = np.array([136, 87, 11], np.uint8)
-            dark_red = np.array([180, 255, 255], np.uint8)
+            light_red = np.array([161, 155, 84], np.uint8)
+            dark_red = np.array([179, 255, 255], np.uint8)
 
             # Threshold the HSV image to get only red colours
             red_mask = cv2.inRange(hsv, light_red, dark_red)
@@ -77,15 +89,15 @@ class RGB_Detection:
                     cap = cv2.rectangle(cap, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
                     # Prep ROS message and publish
-                    midPoints = Location()
+                    #midPoints_R = Location()
                     
-                    midPoints.x = x + (w / 2)
-                    midPoints.y = y + (h / 2)
-                    self.pointCentre.publish(midPoints)
+                    self.midPoints.x = x + (w / 2)
+                    self.midPoints.y = y + (h / 2)
+                    #self.pointCentre.publish(midPoints)
 
                     cv2.putText(
                         cap,
-                        "Red Colour",
+                        "Red",
                         (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0,
@@ -104,15 +116,15 @@ class RGB_Detection:
                     cap = cv2.rectangle(cap, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
                     # Prep ROS message and publish
-                    midPoints = Location()
+                    #midPoints_G = Location()
                     
-                    midPoints.x = x + (w / 2)
-                    midPoints.y = y + (h / 2)
-                    self.pointCentre.publish(midPoints)
+                    self.midPoints.x = x + (w / 2)
+                    self.midPoints.y = y + (h / 2)
+                    #self.pointCentre.publish(midPoints)
 
                     cv2.putText(
                         cap,
-                        "Green Colour",
+                        "Green",
                         (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0,
@@ -131,11 +143,11 @@ class RGB_Detection:
                     cap = cv2.rectangle(cap, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
                     # Prep ROS message and publish
-                    midPoints = Location()
+                    midPoints_B = Location()
                     
-                    midPoints.x = x + (w / 2)
-                    midPoints.y = y + (h / 2)
-                    self.pointCentre.publish(midPoints)
+                    midPoints_B.x = x + (w / 2)
+                    midPoints_B.y = y + (h / 2)
+                    #self.pointCentre.publish(midPoints)
 
                     cv2.putText(
                         cap,
@@ -156,6 +168,40 @@ class RGB_Detection:
 
         cv2.imshow("Image window", cap)
         cv2.waitKey(3)
+    def __init__(self):
+        self.bridge_object = CvBridge()
+        
+        
+        self.depth_sub =rospy.Subscriber("/head_camera/depth_registered/image_raw",Image,self.cameraDepthCallBack)
+        self.location_sub =rospy.Subscriber("point_center",Location,self.cameraDepthCallBack)
+        
+        self.detect_object = rospy.Publisher("object_info", Object_Info, queue_size=10)
+        self.location_3D = rospy.Publisher("distance",Location_3D, queue_size=10)
+
+    def cameraDepthCallBack(self,data):
+        try:
+            cv_cap = self.bridge_object.imgmsg_to_cv2(data,"passthrough") 
+            
+            x = float(self.midPoints.x)
+            y = float(self.midPoints.y)
+            self.z = cv_cap[x,y]
+            
+            location = [x,y,self.z]
+        
+            self.location_3D.publish(location)
+            
+            object = Object_Info()
+            object.x = float(self.x)
+            object.y = float(self.y)
+            object.z = float(self.z)
+            object.obj_name = "object"
+            self.detect_object.publish(object)       
+            
+        except CvBridgeError as e:
+            print(e)
+
+        cv2.imshow("Depth Image window", cv_cap)
+        cv2.waitKey(3)
 
 
 # release video capture
@@ -169,7 +215,7 @@ class RGB_Detection:
 
 if __name__ == "__main__":
     rospy.init_node("Paul_Python_Sensor")
-    cv_thing = RGB_Detection()
+    cv_thing = RGBD_Detection()
 
     while not rospy.is_shutdown():
         rospy.spin()
