@@ -35,173 +35,169 @@ class RGBD_Detection:
         self.location_3D = rospy.Publisher("distance",Location_3D, queue_size=10)
         
         self.midPoints = Location(0, 0)
+        self.x = 0
+        self.y = 0
         self.z = 0
-        #self.midPoints_R 
-        #self.midPoints_B 
+        self.sync = 0
         
     def cameraRGBCallBack(self, data):
         try:
-            cap = self.bridge_object.imgmsg_to_cv2(data, "bgr8")
-            # Convert BGR to HSV
-            hsv = cv2.cvtColor(cap, cv2.COLOR_BGR2HSV)
-            # define blue colour range
-            light_blue = np.array([94, 80, 2], np.uint8)
-            dark_blue = np.array([126, 255, 255], np.uint8)
+            if self.sync == 0:
+                cap = self.bridge_object.imgmsg_to_cv2(data, "bgr8")
+                # Convert BGR to HSV
+                hsv = cv2.cvtColor(cap, cv2.COLOR_BGR2HSV)
+                # define blue colour range
+                light_blue = np.array([94, 80, 2], np.uint8)
+                dark_blue = np.array([126, 255, 255], np.uint8)
 
-            # Threshold the HSV image to get only blue colours
-            blue_mask = cv2.inRange(hsv, light_blue, dark_blue)
+                # Threshold the HSV image to get only blue colours
+                blue_mask = cv2.inRange(hsv, light_blue, dark_blue)
 
-            # define red colour range
-            light_red = np.array([161, 155, 84], np.uint8)
-            dark_red = np.array([179, 255, 255], np.uint8)
+                # define red colour range
+                light_red = np.array([161, 155, 84], np.uint8)
+                dark_red = np.array([179, 255, 255], np.uint8)
 
-            # Threshold the HSV image to get only red colours
-            red_mask = cv2.inRange(hsv, light_red, dark_red)
+                # Threshold the HSV image to get only red colours
+                red_mask = cv2.inRange(hsv, light_red, dark_red)
 
-            # define green colour range
-            light_green = np.array([25, 52, 72], np.uint8)
-            dark_green = np.array([102, 255, 255], np.uint8)
+                # define green colour range
+                light_green = np.array([25, 52, 72], np.uint8)
+                dark_green = np.array([102, 255, 255], np.uint8)
 
-            # Threshold the HSV image to get only green colours
-            green_mask = cv2.inRange(cap, light_green, dark_green)
+                # Threshold the HSV image to get only green colours
+                green_mask = cv2.inRange(cap, light_green, dark_green)
 
-            kernal = np.ones((5, 5), "uint8")
-            blue_mask = cv2.dilate(blue_mask, kernal)
-            red_mask = cv2.dilate(red_mask, kernal)
-            green_mask = cv2.dilate(green_mask, kernal)
+                kernal = np.ones((5, 5), "uint8")
+                blue_mask = cv2.dilate(blue_mask, kernal)
+                red_mask = cv2.dilate(red_mask, kernal)
+                green_mask = cv2.dilate(green_mask, kernal)
 
-            # Bitwise-AND mask and original image
-            output_blue = cv2.bitwise_and(cap, cap, mask=blue_mask)
-            output_red = cv2.bitwise_and(cap, cap, mask=red_mask)
-            output_green = cv2.bitwise_and(cap, cap, mask=green_mask)
+                # Bitwise-AND mask and original image
+                output_blue = cv2.bitwise_and(cap, cap, mask=blue_mask)
+                output_red = cv2.bitwise_and(cap, cap, mask=red_mask)
+                output_green = cv2.bitwise_and(cap, cap, mask=green_mask)
 
-            # Creating contour to track red colour
-            contours, hierarchy = cv2.findContours(
-                red_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
-            )
+                # Creating contour to track red colour
+                contours, hierarchy = cv2.findContours(
+                    red_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+                )
 
-            # array of vector with x,y location
+                # array of vector with x,y location
 
-            for pic, contour in enumerate(contours):
-                area = cv2.contourArea(contour)
-                if area > 300:
-                    x, y, w, h = cv2.boundingRect(contour)
-                    cap = cv2.rectangle(cap, (x, y), (x + w, y + h), (0, 0, 255), 2)
+                for pic, contour in enumerate(contours):
+                    area = cv2.contourArea(contour)
+                    if area > 300:
+                        x, y, w, h = cv2.boundingRect(contour)
+                        cap = cv2.rectangle(cap, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
-                    # Prep ROS message and publish
-                    #midPoints_R = Location()
-                    
-                    self.midPoints.x = x + (w / 2)
-                    self.midPoints.y = y + (h / 2)
-                    #self.pointCentre.publish(midPoints)
+                        # Prep ROS message and publish
+                        #midPoints_R = Location()
+                        
+                        self.midPoints.x = x + (w / 2)
+                        self.midPoints.y = y + (h / 2)
+                        #self.pointCentre.publish(midPoints)
 
-                    cv2.putText(
-                        cap,
-                        "Red",
-                        (x, y),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1.0,
-                        (0, 0, 255),
-                    )
+                        cv2.putText(
+                            cap,
+                            "Red",
+                            (x, y),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            1.0,
+                            (0, 0, 255),
+                        )
 
-            # Creating contour to track green colour
-            contours, hierarchy = cv2.findContours(
-                green_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
-            )
+                # Creating contour to track green colour
+                contours, hierarchy = cv2.findContours(
+                    green_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+                )
 
-            for pic, contour in enumerate(contours):
-                area = cv2.contourArea(contour)
-                if area > 300:
-                    x, y, w, h = cv2.boundingRect(contour)
-                    cap = cv2.rectangle(cap, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                for pic, contour in enumerate(contours):
+                    area = cv2.contourArea(contour)
+                    if area > 300:
+                        x, y, w, h = cv2.boundingRect(contour)
+                        cap = cv2.rectangle(cap, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-                    # Prep ROS message and publish
-                    #midPoints_G = Location()
-                    
-                    self.midPoints.x = x + (w / 2)
-                    self.midPoints.y = y + (h / 2)
-                    #self.pointCentre.publish(midPoints)
+                        # Prep ROS message and publish
+                        #midPoints_G = Location()
+                        
+                        self.midPoints.x = x + (w / 2)
+                        self.midPoints.y = y + (h / 2)
+                        #self.pointCentre.publish(midPoints)
 
-                    cv2.putText(
-                        cap,
-                        "Green",
-                        (x, y),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1.0,
-                        (0, 255, 0),
-                    )
+                        cv2.putText(
+                            cap,
+                            "Green",
+                            (x, y),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            1.0,
+                            (0, 255, 0),
+                        )
 
-            # Creating contour to track blue colour
-            contours, hierarchy = cv2.findContours(
-                blue_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
-            )
+                # Creating contour to track blue colour
+                contours, hierarchy = cv2.findContours(
+                    blue_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+                )
 
-            for pic, contour in enumerate(contours):
-                area = cv2.contourArea(contour)
-                if area > 300:
-                    x, y, w, h = cv2.boundingRect(contour)
-                    cap = cv2.rectangle(cap, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                for pic, contour in enumerate(contours):
+                    area = cv2.contourArea(contour)
+                    if area > 300:
+                        x, y, w, h = cv2.boundingRect(contour)
+                        cap = cv2.rectangle(cap, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
-                    # Prep ROS message and publish
-                    midPoints_B = Location()
-                    
-                    midPoints_B.x = x + (w / 2)
-                    midPoints_B.y = y + (h / 2)
-                    #self.pointCentre.publish(midPoints)
+                        # Prep ROS message and publish
+                        midPoints_B = Location()
+                        
+                        midPoints_B.x = x + (w / 2)
+                        midPoints_B.y = y + (h / 2)
+                        #self.pointCentre.publish(midPoints)
 
-                    cv2.putText(
-                        cap,
-                        "Blue Colour",
-                        (x, y),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1.0,
-                        (255, 0, 0),
-                    )
+                        cv2.putText(
+                            cap,
+                            "Blue",
+                            (x, y),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            1.0,
+                            (255, 0, 0),
+                        )
 
-            # Program Termination
-            cv2.imshow("Multiple Color Detection", cap)
-
-            # Press Q on keyboard to stop recording
-            cv2.waitKey(1)
+                # Program Termination
+                cv2.imshow("Multiple Color Detection", cap)
+                self.sync = 1
+                # Press Q on keyboard to stop recording
+                cv2.waitKey(1)
         except CvBridgeError as e:
             print(e)
-
-        cv2.imshow("Image window", cap)
-        cv2.waitKey(3)
-    def __init__(self):
-        self.bridge_object = CvBridge()
-        
-        
-        self.depth_sub =rospy.Subscriber("/head_camera/depth_registered/image_raw",Image,self.cameraDepthCallBack)
-        self.location_sub =rospy.Subscriber("point_center",Location,self.cameraDepthCallBack)
-        
-        self.detect_object = rospy.Publisher("object_info", Object_Info, queue_size=10)
-        self.location_3D = rospy.Publisher("distance",Location_3D, queue_size=10)
 
     def cameraDepthCallBack(self,data):
         try:
-            cv_cap = self.bridge_object.imgmsg_to_cv2(data,"passthrough") 
+            if self.sync == 1:
+                cv_cap2 = self.bridge_object.imgmsg_to_cv2(data,"passthrough")
+                print(self.midPoints)
+                if self.midPoints.x > 0:
+                    if self.midPoints.y > 0:
+                        x = int(self.midPoints.x)
+                        y = int(self.midPoints.y)
+                        self.z = cv_cap2[x,y]
+                        print(self.z)
+                        self.sync = 0
+                        
+                        location = [x,y,self.z]
+                        self.location_3D.publish(location[0],location[1],location[2])
+                        
+                        
+                cv2.imshow("Depth Image", cv_cap2)
+                cv2.waitKey(3)
+                        
+            # object = Object_Info()
+            # object.x = float(self.x)
+            # object.y = float(self.y)
+            # object.z = float(self.z)
+            # object.obj_name = "object"
+            # self.detect_object.publish(object)       
             
-            x = float(self.midPoints.x)
-            y = float(self.midPoints.y)
-            self.z = cv_cap[x,y]
-            
-            location = [x,y,self.z]
-        
-            self.location_3D.publish(location)
-            
-            object = Object_Info()
-            object.x = float(self.x)
-            object.y = float(self.y)
-            object.z = float(self.z)
-            object.obj_name = "object"
-            self.detect_object.publish(object)       
             
         except CvBridgeError as e:
             print(e)
-
-        cv2.imshow("Depth Image window", cv_cap)
-        cv2.waitKey(3)
 
 
 # release video capture
