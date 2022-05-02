@@ -47,22 +47,22 @@ class RGBD_Detection:
                 # Convert BGR to HSV
                 hsv = cv2.cvtColor(cap, cv2.COLOR_BGR2HSV)
                 # define blue colour range
-                light_blue = np.array([94, 80, 2], np.uint8)
-                dark_blue = np.array([126, 255, 255], np.uint8)
+                light_blue = np.array([86, 31, 4], np.uint8)
+                dark_blue = np.array([220, 88, 50], np.uint8)
 
                 # Threshold the HSV image to get only blue colours
                 blue_mask = cv2.inRange(hsv, light_blue, dark_blue)
 
                 # define red colour range
-                light_red = np.array([161, 155, 84], np.uint8)
-                dark_red = np.array([179, 255, 255], np.uint8)
+                light_red = np.array([[94, 80, 2], np.uint8)
+                dark_red = np.array([50, 56, 200], np.uint8)
 
                 # Threshold the HSV image to get only red colours
                 red_mask = cv2.inRange(hsv, light_red, dark_red)
 
                 # define green colour range
-                light_green = np.array([25, 52, 72], np.uint8)
-                dark_green = np.array([102, 255, 255], np.uint8)
+                light_green = np.array([50, 90, 50], np.uint8)
+                dark_green = np.array([86, 255, 50], np.uint8)
 
                 # Threshold the HSV image to get only green colours
                 green_mask = cv2.inRange(cap, light_green, dark_green)
@@ -199,15 +199,6 @@ class RGBD_Detection:
         except CvBridgeError as e:
             print(e)
 
-
-# release video capture
-# and video write objects
-
-# video_output.release()
-
-# Closes all the frames
-
-# print("The video was successfully saved")
 
 if __name__ == "__main__":
     rospy.init_node("Paul_Python_Sensor")
