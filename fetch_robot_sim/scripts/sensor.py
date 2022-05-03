@@ -65,8 +65,8 @@ class RGBD_Detection:
             red_mask = cv2.inRange(hsv, light_red, dark_red)
 
             # define green colour range
-            light_green = np.array([52, 76, 26], np.uint8)
-            dark_green = np.array([90, 101, 125], np.uint8)
+            light_green = np.array([0, 100, 0], np.uint8)
+            dark_green = np.array([105, 255, 105], np.uint8)
 
             # Threshold the HSV image to get only green colours
             green_mask = cv2.inRange(cap, light_green, dark_green)
@@ -180,14 +180,14 @@ class RGBD_Detection:
                 if self.midPoints.y > 0:
                     x = int(self.midPoints.x)
                     y = int(self.midPoints.y)
-                    #self.z = cv_cap2[x,y]
-                    #print(self.z)
+                    self.z = cv_cap2[x,y]
+                    print(self.z)
 
                     locationPos = Location_3D()
                     locationPos.x = x
                     locationPos.y = y
-                    #locationPos.z = self.z
-                    #self.location_3D.publish(locationPos)
+                    locationPos.z = self.z
+                    self.location_3D.publish(locationPos)
             self.sync = 0
 
 
