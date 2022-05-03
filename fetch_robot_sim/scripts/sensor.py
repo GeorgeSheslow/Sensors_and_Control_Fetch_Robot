@@ -54,7 +54,7 @@ class RGBD_Detection:
                 blue_mask = cv2.inRange(hsv, light_blue, dark_blue)
 
                 # define red colour range
-                light_red = np.array([[94, 80, 2], np.uint8)
+                light_red = np.array([94, 80, 2], np.uint8)
                 dark_red = np.array([50, 56, 200], np.uint8)
 
                 # Threshold the HSV image to get only red colours
