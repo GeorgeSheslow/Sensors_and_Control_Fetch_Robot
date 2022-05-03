@@ -43,29 +43,30 @@ class RGBD_Detection:
         self.sync = 0
         
     def cameraRGBCallBack(self, data):
-
+        cap = self.bridge_object.imgmsg_to_cv2(data, "bgr8")
+        print(self.sync)
         if self.sync == 0:
             print("RGB")
-            cap = self.bridge_object.imgmsg_to_cv2(data, "bgr8")
+            
             # Convert BGR to HSV
             hsv = cv2.cvtColor(cap, cv2.COLOR_BGR2HSV)
             # define blue colour range
-            light_blue = np.array([86, 31, 4], np.uint8)
-            dark_blue = np.array([255, 0, 0], np.uint8)
+            light_blue = np.array([100, 150, 0], np.uint8)
+            dark_blue = np.array([140, 255, 255], np.uint8)
 
             # Threshold the HSV image to get only blue colours
             blue_mask = cv2.inRange(hsv, light_blue, dark_blue)
 
             # define red colour range
-            light_red = np.array([94, 80, 2], np.uint8)
-            dark_red = np.array([0, 0, 255], np.uint8)
+            light_red = np.array([0, 100, 20], np.uint8)
+            dark_red = np.array([10, 255, 255], np.uint8)
 
             # Threshold the HSV image to get only red colours
             red_mask = cv2.inRange(hsv, light_red, dark_red)
 
             # define green colour range
-            light_green = np.array([50, 90, 50], np.uint8)
-            dark_green = np.array([0, 255, 0], np.uint8)
+            light_green = np.array([52, 76, 26], np.uint8)
+            dark_green = np.array([90, 101, 125], np.uint8)
 
             # Threshold the HSV image to get only green colours
             green_mask = cv2.inRange(cap, light_green, dark_green)
@@ -165,13 +166,10 @@ class RGBD_Detection:
 
             # Program Termination
             
-            
-            self.bounding_image.publish(self.bridge_object.cv2_to_imgmsg(cap, "bgr8"))
             self.sync = 1
+        self.bounding_image.publish(self.bridge_object.cv2_to_imgmsg(cap, "bgr8"))
             
             
-
-
     def cameraDepthCallBack(self,data):
 
         if self.sync == 1:
@@ -182,14 +180,14 @@ class RGBD_Detection:
                 if self.midPoints.y > 0:
                     x = int(self.midPoints.x)
                     y = int(self.midPoints.y)
-                    self.z = cv_cap2[x,y]
-                    print(self.z)
+                    #self.z = cv_cap2[x,y]
+                    #print(self.z)
 
-                    locationPos = Location()
+                    locationPos = Location_3D()
                     locationPos.x = x
                     locationPos.y = y
-                    locationPos.z = self.z
-                    self.location_3D.publish(locationPos)
+                    #locationPos.z = self.z
+                    #self.location_3D.publish(locationPos)
             self.sync = 0
 
 
