@@ -42,8 +42,9 @@ class RGBD_Detection:
         
     def cameraRGBCallBack(self, data):
         try:
+            cap = self.bridge_object.imgmsg_to_cv2(data, "bgr8")
             if self.sync == 0:
-                cap = self.bridge_object.imgmsg_to_cv2(data, "bgr8")
+                print("start of code")
                 # Convert BGR to HSV
                 hsv = cv2.cvtColor(cap, cv2.COLOR_BGR2HSV)
                 # define blue colour range
@@ -161,10 +162,10 @@ class RGBD_Detection:
                         )
 
                 # Program Termination
-                cv2.imshow("Multiple Color Detection", cap)
+                
                 self.sync = 1
                 # Press Q on keyboard to stop recording
-                cv2.waitKey(1)
+            cv2.imshow("Multiple Color Detection", cap)
         except CvBridgeError as e:
             print(e)
 
@@ -180,25 +181,14 @@ class RGBD_Detection:
                         self.z = cv_cap2[x,y]
                         print(self.z)
                         self.sync = 0
-                        # location = Location()
-                        # location.x = x
-                        # location.y = y
+                        locationPos = Location()
+                        locationPos.x = x
+                        locationPos.y = y
+                        locationPos.z = self.z
+                        self.location_3D.publish(locationPos)
                         
-                        location = [x,y,self.z]
-                        self.location_3D.publish(location[0],location[1],location[2])
                         
-                        
-                cv2.imshow("Depth Image", cv_cap2)
-                cv2.waitKey(3)
-                        
-            # object = Object_Info()
-            # object.x = float(self.x)
-            # object.y = float(self.y)
-            # object.z = float(self.z)
-            # object.obj_name = "object"
-            # self.detect_object.publish(object)       
-            
-            
+            cv2.imshow("Depth Image", cv_cap2)
         except CvBridgeError as e:
             print(e)
 
