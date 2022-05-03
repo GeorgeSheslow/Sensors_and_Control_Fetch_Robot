@@ -21,30 +21,28 @@ from fetch_robot_sim.msg import Location_3D
 class RGBD_Detection:
     def __init__(self):
         self.bridge_object = CvBridge()
+        
+        #Subscribers
         self.image_sub = rospy.Subscriber(
             "/head_camera/rgb/image_raw", Image, self.cameraRGBCallBack
-        )
-
-        self.pointCentre = rospy.Publisher("point_center", Location, queue_size=10)
-        
-        
+        )        
         self.depth_sub =rospy.Subscriber("/head_camera/depth_registered/image_raw",Image,self.cameraDepthCallBack)
-        #self.location_sub =rospy.Subscriber("point_center",Location,self.cameraDepthCallBack)
         
+        #Publishers
         self.detect_object = rospy.Publisher("object_info", Object_Info, queue_size=10)
         self.location_3D = rospy.Publisher("distance",Location_3D, queue_size=10)
         self.bounding_image = rospy.Publisher("/bounding_image",Image, queue_size=10)
         self.bounding_image1 = rospy.Publisher("/bounding_image1",Image, queue_size=10)
         
+        #Globals for the class
         self.midPoints = Location(0, 0)
         self.x = 0
         self.y = 0
         self.z = 0
-        self.sync = 0
+        self.sync = 0 #when sync = 0 it runs RGB, sync = 1 Depth
         
     def cameraRGBCallBack(self, data):
         cap = self.bridge_object.imgmsg_to_cv2(data, "bgr8")
-        print(self.sync)
         if self.sync == 0:
             print("RGB")
             
@@ -86,24 +84,22 @@ class RGBD_Detection:
                 red_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
             )
 
-            # array of vector with x,y location
-
+            #Drawing the rectangle
             for pic, contour in enumerate(contours):
                 area = cv2.contourArea(contour)
                 if area > 300:
                     x, y, w, h = cv2.boundingRect(contour)
                     cap = cv2.rectangle(cap, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
-                    # Prep ROS message and publish
-                    #midPoints_R = Location()
-                    
+
+                    # Preparing center point
                     self.midPoints.x = x + (w / 2)
                     self.midPoints.y = y + (h / 2)
-                    #self.pointCentre.publish(midPoints)
-
+                    
+                    #Text on the rectangle
                     cv2.putText(
                         cap,
-                        "Red",
+                        "Red Cylinder",
                         (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0,
@@ -114,23 +110,19 @@ class RGBD_Detection:
             contours, hierarchy = cv2.findContours(
                 green_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
             )
-
+            #Drawing the rectangle
             for pic, contour in enumerate(contours):
                 area = cv2.contourArea(contour)
                 if area > 300:
                     x, y, w, h = cv2.boundingRect(contour)
                     cap = cv2.rectangle(cap, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-                    # Prep ROS message and publish
-                    #midPoints_G = Location()
-                    
+                    # Preparing center point
                     self.midPoints.x = x + (w / 2)
                     self.midPoints.y = y + (h / 2)
-                    #self.pointCentre.publish(midPoints)
-
+                    #Text on the rectangle
                     cv2.putText(
                         cap,
-                        "Green",
+                        "Green Large Cube",
                         (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0,
@@ -141,31 +133,28 @@ class RGBD_Detection:
             contours, hierarchy = cv2.findContours(
                 blue_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
             )
-
+            #Drawing the rectangle
             for pic, contour in enumerate(contours):
                 area = cv2.contourArea(contour)
                 if area > 300:
                     x, y, w, h = cv2.boundingRect(contour)
                     cap = cv2.rectangle(cap, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
-                    # Prep ROS message and publish
+                    # Preparing center point
                     midPoints_B = Location()
                     
                     midPoints_B.x = x + (w / 2)
                     midPoints_B.y = y + (h / 2)
-                    #self.pointCentre.publish(midPoints)
-
+                    
+                    #Text on the rectangle
                     cv2.putText(
                         cap,
-                        "Blue",
+                        "Blue Small Cube",
                         (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0,
                         (255, 0, 0),
                     )
-
-            # Program Termination
-            
             self.sync = 1
         self.bounding_image.publish(self.bridge_object.cv2_to_imgmsg(cap, "bgr8"))
             
@@ -173,16 +162,19 @@ class RGBD_Detection:
     def cameraDepthCallBack(self,data):
 
         if self.sync == 1:
-            print("depth")
             cv_cap2 = self.bridge_object.imgmsg_to_cv2(data,"passthrough")
-            print(self.midPoints)
+            
+            #to ensure that there is a center point
             if self.midPoints.x > 0:
                 if self.midPoints.y > 0:
+                    #midpoints from RGB
                     x = int(self.midPoints.x)
                     y = int(self.midPoints.y)
+                    
+                    #depth when given x,y from camer's point of view
                     self.z = cv_cap2[x,y]
-                    print(self.z)
 
+                    #publishing result for IKsolver
                     locationPos = Location_3D()
                     locationPos.x = x
                     locationPos.y = y
