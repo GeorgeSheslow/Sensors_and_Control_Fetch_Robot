@@ -24,4 +24,5 @@ Notes:
 - All packages MUST contain a "include" folder, whether or not it would be empty anyway.
 - catkin build MUST be used rather than catkin_make
 
-1. Launch with: roslaunch iksolver iksolver_ex.launch
+1. Launch: roslaunch fetch_moveit_config demo.launch
+2. Launch: roslaunch iksolver iksolver_ex.launch

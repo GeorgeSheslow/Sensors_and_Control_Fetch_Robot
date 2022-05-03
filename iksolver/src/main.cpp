@@ -1,7 +1,5 @@
 #include <pluginlib/class_loader.h>
-#include <ros/publisher.h>
 #include <ros/ros.h>
-#include <std_msgs/String.h>
 
 // MoveIt
 #include <moveit/robot_model_loader/robot_model_loader.h>
@@ -13,19 +11,20 @@
 #include <moveit_visual_tools/moveit_visual_tools.h>
 
 #include <boost/scoped_ptr.hpp>
-#include <ros/subscriber.h>
-#include <boost/function.hpp>
-#include <ros/param.h>
 
-// void sensor_callback(const std_msgs::String::ConstPtr& msg, ros::NodeHandle& node_handle);
-ros::NodeHandle node_handle;
-// ros::Subscriber sensor_rgb = node_handle.subscribe<std::string>("point_centre", 1000, sensor_callback);
-ros::Publisher ikine_pub = node_handle.advertise<moveit_msgs::DisplayTrajectory>("ikine", 1000);
-  
+// Based on:
+// https://docs.fetchrobotics.com/manipulation.html
+// https://ros-planning.github.io/moveit_tutorials/doc/motion_planning_api/motion_planning_api_tutorial.html
 
-void sensor_callback(const std_msgs::String::ConstPtr& msg){ //, ros::NodeHandle& node_handle){
-  // _RobotModelLoader:
-  const std::string PLANNING_GROUP = "panda_arm";
+int main(int argc, char** argv)
+{
+  const std::string node_name = "motion_planning_tutorial";
+  ros::init(argc, argv, node_name);
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
+  ros::NodeHandle node_handle("~");
+
+  const std::string PLANNING_GROUP = "arm";
   robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
   const moveit::core::RobotModelPtr& robot_model = robot_model_loader.getModel();
   /* Create a RobotState and JointModelGroup to keep track of the current robot pose and planning group*/
@@ -52,7 +51,8 @@ void sensor_callback(const std_msgs::String::ConstPtr& msg){ //, ros::NodeHandle
     ROS_FATAL_STREAM("Could not find planner plugin name");
   try
   {
-    planner_plugin_loader.reset(new pluginlib::ClassLoader<planning_interface::PlannerManager>("moveit_core", "planning_interface::PlannerManager"));
+    planner_plugin_loader.reset(new pluginlib::ClassLoader<planning_interface::PlannerManager>(
+        "moveit_core", "planning_interface::PlannerManager"));
   }
   catch (pluginlib::PluginlibException& ex)
   {
@@ -67,18 +67,17 @@ void sensor_callback(const std_msgs::String::ConstPtr& msg){ //, ros::NodeHandle
   }
   catch (pluginlib::PluginlibException& ex)
   {
-    // const std::vector<std::string>& classes = planner_plugin_loader->getDeclaredClasses();
+    const std::vector<std::string>& classes = planner_plugin_loader->getDeclaredClasses();
     std::stringstream ss;
     for (const auto& cls : classes)
       ss << cls << " ";
-    ROS_ERROR_STREAM("Exception while loading planner '" << planner_plugin_name << "': " << ex.what() << std::endl << "Available plugins: " << ss.str());
+    ROS_ERROR_STREAM("Exception while loading planner '" << planner_plugin_name << "': " << ex.what() << std::endl
+                                                         << "Available plugins: " << ss.str());
   }
 
   // Visualization
   // ^^^^^^^^^^^^^
-  // The package MoveItVisualTools provides many capabilities for visualizing objects, robots,
-  // and trajectories in RViz as well as debugging tools such as step-by-step introspection of a script.
-  moveit_visual_tools::MoveItVisualTools visual_tools("panda_link0");
+  moveit_visual_tools::MoveItVisualTools visual_tools("base_link");
   visual_tools.loadRobotStatePub("/display_robot_state");
   visual_tools.enableBatchPublishing();
   visual_tools.deleteAllMarkers();  // clear all old markers
@@ -92,17 +91,14 @@ void sensor_callback(const std_msgs::String::ConstPtr& msg){ //, ros::NodeHandle
   visual_tools.trigger();
   planning_interface::MotionPlanRequest req;
   planning_interface::MotionPlanResponse res;
-
-  // Extract requested pose from sensor
-
-  /* TODO */
-  /* PULL x, y, z FROM SENSOR */
-
   geometry_msgs::PoseStamped pose;
-  pose.header.frame_id = "panda_link0";
-  pose.pose.position.x = 0.3;
+
+  // TODO: THIS NEEDS TO BE CHANGED TO RECEIVE DATA FROM SENSOR
+
+  pose.pose.position.x = 0;
   pose.pose.position.y = 0.4;
   pose.pose.position.z = 0.75;
+  //Does not change, always pointing 90 degrees
   pose.pose.orientation.w = 1.0;
 
   // A tolerance of 0.01 m is specified in position
@@ -110,7 +106,7 @@ void sensor_callback(const std_msgs::String::ConstPtr& msg){ //, ros::NodeHandle
   std::vector<double> tolerance_pose(3, 0.01);
   std::vector<double> tolerance_angle(3, 0.01);
 
-  moveit_msgs::Constraints pose_goal = kinematic_constraints::constructGoalConstraints("panda_link8", pose, tolerance_pose, tolerance_angle);
+  moveit_msgs::Constraints pose_goal = kinematic_constraints::constructGoalConstraints("wrist_roll_link", pose, tolerance_pose, tolerance_angle);
 
   req.group_name = PLANNING_GROUP;
   req.goal_constraints.push_back(pose_goal);
@@ -123,7 +119,7 @@ void sensor_callback(const std_msgs::String::ConstPtr& msg){ //, ros::NodeHandle
   if (res.error_code_.val != res.error_code_.SUCCESS)
   {
     ROS_ERROR("Could not compute plan successfully");
-    return;
+    return 0;
   }
 
   // Visualize the result
@@ -135,38 +131,38 @@ void sensor_callback(const std_msgs::String::ConstPtr& msg){ //, ros::NodeHandle
   moveit_msgs::MotionPlanResponse response;
   res.getMessage(response);
 
-  // publish
-
-  ikine_pub.publish(response);
-  
-  display_trajectory.trajectory_start = response.trajectory_start;
-  display_trajectory.trajectory.push_back(response.trajectory);
-  visual_tools.publishTrajectoryLine(display_trajectory.trajectory.back(), joint_model_group);
-  visual_tools.trigger();
-  display_publisher.publish(display_trajectory);
+  // display_trajectory.trajectory_start = response.trajectory_start;
+  // display_trajectory.trajectory.push_back(response.trajectory);
+  // visual_tools.publishTrajectoryLine(display_trajectory.trajectory.back(), joint_model_group);
+  // visual_tools.trigger();
+  // display_publisher.publish(display_trajectory);
 
   /* Set the state in the planning scene to the final state of the last plan */
   robot_state->setJointGroupPositions(joint_model_group, response.trajectory.joint_trajectory.points.back().positions);
   planning_scene->setCurrentState(*robot_state.get());
 
   // Display the goal state
-  visual_tools.publishRobotState(planning_scene->getCurrentStateNonConst(), rviz_visual_tools::GREEN);
-  visual_tools.publishAxisLabeled(pose.pose, "goal_1");
-  visual_tools.trigger();
-
-  // END_TUTORIAL
-  planner_instance.reset();
-
-}
-
-int main(int argc, char** argv){
-  const std::string node_name = "motion_planning_tutorial";
-  ros::init(argc, argv, node_name);
-  ros::AsyncSpinner spinner(1);
+  // visual_tools.publishRobotState(planning_scene->getCurrentStateNonConst(), rviz_visual_tools::GREEN);
+  // visual_tools.publishAxisLabeled(pose.pose, "goal_1");
+  // visual_tools.trigger();
 
 
+  // PRINT OUT JOINT VALUES
+  const std::vector<std::string>& joint_names = joint_model_group->getVariableNames();
+  std::vector<double> joint_values;
+  robot_state->copyJointGroupPositions(joint_model_group, joint_values);
+  for (std::size_t i = 0; i < joint_names.size(); ++i){
+    ROS_INFO("Joint %s: %f", joint_names[i].c_str(), joint_values[i]);
+  }
 
+  // PUBLISH THE DAMN JOINT TRAJ POINTS
+  ros::Publisher traj_pub = node_handle.advertise<moveit_msgs::MotionPlanResponse>("joint_pub", 1, true);
+  traj_pub.publish(response);
+
+  // THE TRAJECTORY ARRAY OF JOINT POSITIONS CAN BE FOUND HERE:
+  // http://docs.ros.org/en/noetic/api/moveit_msgs/html/msg/MotionPlanResponse.html
+  // http://docs.ros.org/en/kinetic/api/moveit_tutorials/html/doc/robot_model_and_robot_state/robot_model_and_robot_state_tutorial.html
+  // response.trajectory.joint_trajectory.points
   
-  spinner.start();
   return 0;
 }
