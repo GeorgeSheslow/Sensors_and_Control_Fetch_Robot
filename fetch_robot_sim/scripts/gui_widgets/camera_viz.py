@@ -38,9 +38,18 @@ class Cameras(QWidget):
         self.thread.start()
         self.worker.ImageUpdate.connect(self.ImageUpdateSlot)
 
+        self.thread1 = QThread()
+        self.worker1 = image_converter()
+        self.worker1.moveToThread(self.thread1)
+        rospy.Subscriber("/bounding_image1", Image, self.worker1.run)
+        self.thread1.start()
+        self.worker1.ImageUpdate.connect(self.ImageUpdateSlot1)
+
     def ImageUpdateSlot(self, Image):
         self.FeedLabel.setPixmap(QPixmap.fromImage(Image))
 
+    def ImageUpdateSlot1(self, Image):
+        self.FeedLabel1.setPixmap(QPixmap.fromImage(Image))
 
 class image_converter(QObject):
     ImageUpdate = pyqtSignal(QImage)
