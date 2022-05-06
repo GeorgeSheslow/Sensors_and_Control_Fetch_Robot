@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.7.2)
 project(fetch_robot_sim)
+
 find_package(catkin REQUIRED)
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED EXACT 1.79.0)
 find_package(gazebo REQUIRED)
 
 
