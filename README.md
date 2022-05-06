@@ -12,6 +12,12 @@ Packages:
 
 - Ensure all dependicies are downloaded
 
+# fetch_robot_sim
+
+1. Try roslaunch fetch_gazebo simulation.launch
+
+# iksolver
+
 MoveIT:
 - In catkin_ws/src/moveit/moveit_ros/planning/planning_components_tools/CMakeLists.txt, comment out lines 17 to 22
 - Comment the line 75 in file catkin_ws/src/moveit_tutorials/CMakeLists.txt
