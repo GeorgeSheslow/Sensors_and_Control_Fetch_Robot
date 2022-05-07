@@ -24,10 +24,12 @@ from geometry_msgs.msg import Twist
 
 from sensor_msgs.msg import JointState
 
+from gui_widgets.moveit import Grasp
+
 
 class Robot:
     def __init__(self, robot_name):
-
+        self.grasping = Grasp()
         self.twist_pub = rospy.Publisher("cmd_vel", Twist, queue_size=1)
 
         #
@@ -219,3 +221,7 @@ class Robot:
         twist.linear.x = x
         twist.angular.z = y
         self.twist_pub.publish(twist)
+
+
+    def grasp(self,x,y,z):
+        self.grasping.xyz(x,y,z)

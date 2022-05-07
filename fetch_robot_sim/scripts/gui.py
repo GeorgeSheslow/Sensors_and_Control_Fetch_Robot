@@ -51,7 +51,7 @@ class GUI(QWidget):
 
     def grasp_prep(self):
         self.fetch.reset_arm()
-        for i in range(22):
+        for i in range(12):
             self.fetch.execute_twist(0.1, 0)
             time.sleep(0.3)
 
@@ -68,7 +68,11 @@ class GUI(QWidget):
         pass
 
     def grasp_obj(self):
-        pass
+        x = self.grasp_x.text()
+        y = self.grasp_y.text()
+        z = self.grasp_z.text()
+        print("sending: " + x + ", " + y + ", " + z)
+        self.fetch.grasp(x,y,z)
 
     def obj_info_callback(self, data):
         self.obj_detect_label.setText("Obj Detected:  " + str(data.obj_name))
