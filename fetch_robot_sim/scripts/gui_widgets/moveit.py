@@ -5,7 +5,7 @@ import rospy
 from moveit_msgs.msg import MoveItErrorCodes
 from moveit_python import MoveGroupInterface, PlanningSceneInterface
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
-
+from tf.transformations import quaternion_from_euler
 # Note: fetch_moveit_config move_group.launch must be running
 # Safety!: Do NOT run this script near people or objects.
 # Safety!: There is NO perception.
@@ -36,7 +36,8 @@ class Grasp:
         pos_x = float(x)
         pos_y = float(y)
         pos_z = float(z)
-        pose = Pose(Point(pos_x,pos_y,pos_z),Quaternion(0.173, -0.693, -0.242, 0.657))
+        q = quaternion_from_euler(1.5707, 0, -1.5707)
+        pose = Pose(Point(pos_x,pos_y,pos_z),Quaternion(q[0], q[1], q[2], q[3]))
         # Construct a "pose_stamped" message as required by moveToPose
         gripper_pose_stamped = PoseStamped()
         gripper_pose_stamped.header.frame_id = 'base_link'
