@@ -11,6 +11,9 @@ import rospy
 import numpy as np
 import math
 
+import geometry_msgs.msg 
+import tf #transform_data ypes
+
 from sensor_msgs.msg import Image
 from std_msgs.msg import String, Float64MultiArray, Float32
 from cv_bridge import CvBridge, CvBridgeError
@@ -25,12 +28,14 @@ class RGBD_Detection:
     def __init__(self):
         self.bridge_object = CvBridge()
         
+        self.sync = 0 #when sync = 0 it runs RGB, sync = 1 Depth
+
         #Subscribers
         self.image_sub = rospy.Subscriber(
             "/head_camera/rgb/image_raw", Image, self.cameraRGBCallBack
         )        
         self.depth_sub = rospy.Subscriber("/head_camera/depth_registered/image_raw",Image,self.cameraDepthCallBack)
-        self.odom_sub = rospy.Subscriber("/odom",PoseStamped,self.calculationsCallBack)
+        self.odom_sub = rospy.Subscriber("/odom",Odometry,self.calculationsCallBack)
         #Publishers
         self.detect_object = rospy.Publisher("/object_info", Object_Info, queue_size=10)
         self.location_3D = rospy.Publisher("/distance",Location_3D, queue_size=10)
@@ -44,11 +49,9 @@ class RGBD_Detection:
         self.x = 0
         self.y = 0
         self.z = 0
-        self.sync = 0 #when sync = 0 it runs RGB, sync = 1 Depth
-        
+                
     def cameraRGBCallBack(self, data):
         cap = self.bridge_object.imgmsg_to_cv2(data, "bgr8")
-
         if self.sync == 0:
                         
             # Convert BGR to HSV
@@ -69,7 +72,7 @@ class RGBD_Detection:
 
             # define green colour range
             light_green = np.array([0, 100, 0], np.uint8)
-            dark_green = np.array([105, 255, 105], np.uint8)
+            dark_green = np.array([80, 140, 80], np.uint8)
 
             # Threshold the HSV image to get only green colours
             green_mask = cv2.inRange(cap, light_green, dark_green)
@@ -165,10 +168,8 @@ class RGBD_Detection:
             
             
     def cameraDepthCallBack(self,data):
-
         if self.sync == 1:
             cv_cap2 = self.bridge_object.imgmsg_to_cv2(data,"passthrough")
-            
             #to ensure that there is a center point
             if self.midPoints.x > 0:
                 if self.midPoints.y > 0:
@@ -181,29 +182,42 @@ class RGBD_Detection:
 
                     #publishing result for IKsolver
                     
-                    self.locationPos.x = x
-                    self.locationPos.y = y
+                    self.locationPos.x = x * 0.000265 #in m
+                    self.locationPos.y = y * 0.000265 #in m
                     self.locationPos.z = self.z
                     #self.location_3D.publish(locationPos)
-            self.sync = 2
+                    self.sync = 2
+                else:
+                    self.sync = 0 
+            else:
+                self.sync = 0
 
     def calculationsCallBack(self,data):
         if self.sync == 2:
-            print(self.sync)
             robotPos = Location_3D()
-            robotPos.x = data.pose.position.x
-            robotPos.y = data.pose.position.y
-            robotPos.z = data.pose.position.z  #position of the starting arm location?
-            rotation = data.pose.rotation    #in Rad
+            robotPos.x = data.pose.pose.position.x
+            robotPos.y = data.pose.pose.position.y
+            robotPos.z = data.pose.pose.position.z  #position of the starting arm location?
             
-            print(robotPos)
-            print(rotation)
+            #quart1 = data.pose.orientation    #in quarternian
+            rotation = (data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w)  
             
-            self.posLocalGlobal.x = self.locationPos.z * math.acos(rotation) + robotPos.x #z shows the depth
-            self.posLocalGlobal.y = self.locationPos.x * math.asin(rotation) + robotPos.y #x is width
+            #transform quarterian to rpy, only yaw is required 
+            euler = tf.transformations.euler_from_quaternion(rotation)
+            roll = euler[0] # in rad
+            pitch = euler[1] # in rad 
+            yaw = euler[2] # in rad
+            
+            #print(robotPos)
+            #print(yaw)
+            
+            self.posLocalGlobal.x = self.locationPos.z * math.acos(yaw) + robotPos.x #z shows the depth
+            self.posLocalGlobal.y = self.locationPos.x * math.asin(yaw) + robotPos.y #x is width
             self.posLocalGlobal.z = self.locationPos.y + robotPos.z #y is the hight
             self.location_3D.publish(self.posLocalGlobal)
-            #self.sync = 0
+            print(self.posLocalGlobal)
+            self.sync = 0
+
         
         
 
