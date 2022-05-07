@@ -1,3 +1,4 @@
+import posix
 from tkinter import Y
 import cv2
 import sys
@@ -8,11 +9,13 @@ import roslib
 import time
 import rospy
 import numpy as np
+import math
 
 from sensor_msgs.msg import Image
 from std_msgs.msg import String, Float64MultiArray, Float32
 from cv_bridge import CvBridge, CvBridgeError
-
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import PoseStamped #, PoseWithConvariance, TwistWithConvariance
 from fetch_robot_sim.msg import Object_Info
 from fetch_robot_sim.msg import Location
 from fetch_robot_sim.msg import Location_3D
@@ -26,16 +29,18 @@ class RGBD_Detection:
         self.image_sub = rospy.Subscriber(
             "/head_camera/rgb/image_raw", Image, self.cameraRGBCallBack
         )        
-        self.depth_sub =rospy.Subscriber("/head_camera/depth_registered/image_raw",Image,self.cameraDepthCallBack)
-        
+        self.depth_sub = rospy.Subscriber("/head_camera/depth_registered/image_raw",Image,self.cameraDepthCallBack)
+        self.odom_sub = rospy.Subscriber("/odom",PoseStamped,self.calculationsCallBack)
         #Publishers
-        self.detect_object = rospy.Publisher("object_info", Object_Info, queue_size=10)
-        self.location_3D = rospy.Publisher("distance",Location_3D, queue_size=10)
+        self.detect_object = rospy.Publisher("/object_info", Object_Info, queue_size=10)
+        self.location_3D = rospy.Publisher("/distance",Location_3D, queue_size=10)
         self.bounding_image = rospy.Publisher("/bounding_image",Image, queue_size=10)
         self.bounding_image1 = rospy.Publisher("/bounding_image1",Image, queue_size=10)
         
         #Globals for the class
         self.midPoints = Location(0, 0)
+        self.locationPos = Location_3D()
+        self.posLocalGlobal = Location_3D()
         self.x = 0
         self.y = 0
         self.z = 0
@@ -43,9 +48,9 @@ class RGBD_Detection:
         
     def cameraRGBCallBack(self, data):
         cap = self.bridge_object.imgmsg_to_cv2(data, "bgr8")
+
         if self.sync == 0:
-            print("RGB")
-            
+                        
             # Convert BGR to HSV
             hsv = cv2.cvtColor(cap, cv2.COLOR_BGR2HSV)
             # define blue colour range
@@ -175,13 +180,32 @@ class RGBD_Detection:
                     self.z = cv_cap2[x,y]
 
                     #publishing result for IKsolver
-                    locationPos = Location_3D()
-                    locationPos.x = x
-                    locationPos.y = y
-                    locationPos.z = self.z
-                    self.location_3D.publish(locationPos)
-            self.sync = 0
+                    
+                    self.locationPos.x = x
+                    self.locationPos.y = y
+                    self.locationPos.z = self.z
+                    #self.location_3D.publish(locationPos)
+            self.sync = 2
 
+    def calculationsCallBack(self,data):
+        if self.sync == 2:
+            print(self.sync)
+            robotPos = Location_3D()
+            robotPos.x = data.pose.position.x
+            robotPos.y = data.pose.position.y
+            robotPos.z = data.pose.position.z  #position of the starting arm location?
+            rotation = data.pose.rotation    #in Rad
+            
+            print(robotPos)
+            print(rotation)
+            
+            self.posLocalGlobal.x = self.locationPos.z * math.acos(rotation) + robotPos.x #z shows the depth
+            self.posLocalGlobal.y = self.locationPos.x * math.asin(rotation) + robotPos.y #x is width
+            self.posLocalGlobal.z = self.locationPos.y + robotPos.z #y is the hight
+            self.location_3D.publish(self.posLocalGlobal)
+            #self.sync = 0
+        
+        
 
 if __name__ == "__main__":
     rospy.init_node("Paul_Python_Sensor")
