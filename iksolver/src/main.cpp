@@ -131,20 +131,20 @@ int main(int argc, char** argv)
   moveit_msgs::MotionPlanResponse response;
   res.getMessage(response);
 
-  // display_trajectory.trajectory_start = response.trajectory_start;
-  // display_trajectory.trajectory.push_back(response.trajectory);
-  // visual_tools.publishTrajectoryLine(display_trajectory.trajectory.back(), joint_model_group);
-  // visual_tools.trigger();
-  // display_publisher.publish(display_trajectory);
+  display_trajectory.trajectory_start = response.trajectory_start;
+  display_trajectory.trajectory.push_back(response.trajectory);
+  visual_tools.publishTrajectoryLine(display_trajectory.trajectory.back(), joint_model_group);
+  visual_tools.trigger();
+  display_publisher.publish(display_trajectory);
 
   /* Set the state in the planning scene to the final state of the last plan */
   robot_state->setJointGroupPositions(joint_model_group, response.trajectory.joint_trajectory.points.back().positions);
   planning_scene->setCurrentState(*robot_state.get());
 
   // Display the goal state
-  // visual_tools.publishRobotState(planning_scene->getCurrentStateNonConst(), rviz_visual_tools::GREEN);
-  // visual_tools.publishAxisLabeled(pose.pose, "goal_1");
-  // visual_tools.trigger();
+  visual_tools.publishRobotState(planning_scene->getCurrentStateNonConst(), rviz_visual_tools::GREEN);
+  visual_tools.publishAxisLabeled(pose.pose, "goal_1");
+  visual_tools.trigger();
 
 
   // PRINT OUT JOINT VALUES
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
 
   // THE TRAJECTORY ARRAY OF JOINT POSITIONS CAN BE FOUND HERE:
   // http://docs.ros.org/en/noetic/api/moveit_msgs/html/msg/MotionPlanResponse.html
-  // http://docs.ros.org/en/kinetic/api/moveit_tutorials/html/doc/robot_model_and_robot_state/robot_model_and_robot_state_tutorial.html
+  // http://docs.ros.org/en/kinetic/api/moveit_tutorials/html/doc/robot_model_an d_robot_state/robot_model_and_robot_state_tutorial.html
   // response.trajectory.joint_trajectory.points
   
   return 0;
