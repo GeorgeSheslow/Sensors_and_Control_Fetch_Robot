@@ -189,3 +189,13 @@ if __name__ == "__main__":
 
     while not rospy.is_shutdown():
         rospy.spin()
+
+
+# work out transformation math
+
+# find 0,0,0 of robot gripper position
+# 
+
+# Camera frame -> global frame (function of focal length, x,y,z)
+# Global frame -> robot frame (x,y,z) + (rpy) (custom message)
+# 
