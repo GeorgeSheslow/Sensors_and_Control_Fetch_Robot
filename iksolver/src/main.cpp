@@ -8,6 +8,7 @@
 #include <moveit_msgs/CollisionObject.h>
 
 #include <moveit_visual_tools/moveit_visual_tools.h>
+#include <ros/subscriber.h>
 
 int main(int argc, char** argv)
 {
@@ -32,6 +33,14 @@ int main(int argc, char** argv)
 
   // Planning to a Pose goal
   // INITIAL POSITION: 0.961650, 0.000000, 0.786010 (x, y, z)
+  
+  // account for base movements
+  // const Eigen::Affine3d &sensor_state = move_group_interface.getCurrentState()->getGlobalLinkTransform("head_tilt_link");
+  // /* Print end-effector pose. Remember that this is in the model frame */
+  // ROS_INFO_STREAM("Translation: " << sensor_state.translation());
+  // ROS_INFO_STREAM("Rotation: " << sensor_state.rotation());
+  
+  // ros::Subscriber sensor_dist = node_handle.subscribe("/distance", 1000, move);
 
   geometry_msgs::Pose target_pose1;
   target_pose1.orientation.w = 1.0;
