@@ -8,6 +8,5 @@
     <!-- If needed, broadcast static tf for robot root -->
     <node pkg="tf2_ros" type="static_transform_publisher" name="virtual_joint_broadcaster_1" args="0 0 0 0 0 0 world base_link" />
 
-    <include file="$(find iksolver)/launch/iksolver_node.launch"/>
 
 </launch>
