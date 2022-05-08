@@ -1,0 +1,3 @@
+<launch>
+    <node name="iksolver_ex" pkg="iksolver" type="iksolver_ex" respawn="false" output="screen"/>
+</launch>

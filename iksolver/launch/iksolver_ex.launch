@@ -1,9 +1,13 @@
 <launch>
 
-  <node name="iksolver_ex" pkg="iksolver" type="iksolver_ex" respawn="false" output="screen">
-    <rosparam command="load" file="$(find panda_moveit_config)/config/kinematics.yaml"/>
-    <param name="/planning_plugin" value="ompl_interface/OMPLPlanner"/>
-    <rosparam command="load" file="$(find panda_moveit_config)/config/ompl_planning.yaml"/>
-  </node>
+ <!-- Specify the config files to use -->
+    <rosparam ns="iksolver_ex" command="load" file="$(find moveit_tutorials)/doc/moveit_cpp/config/moveit_cpp.yaml" />
+
+    <include file="$(find fetch_moveit_config)/launch/demo.launch"/>
+
+    <!-- If needed, broadcast static tf for robot root -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="virtual_joint_broadcaster_1" args="0 0 0 0 0 0 world base_link" />
+
+    <include file="$(find iksolver)/launch/iksolver_node.launch"/>
 
 </launch>
