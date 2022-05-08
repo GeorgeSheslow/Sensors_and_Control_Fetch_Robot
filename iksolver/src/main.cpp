@@ -1,168 +1,248 @@
-#include <pluginlib/class_loader.h>
 #include <ros/ros.h>
+#include <memory>
+// MoveitCpp
+#include <moveit/moveit_cpp/moveit_cpp.h>
+#include <moveit/moveit_cpp/planning_component.h>
+#include <moveit/robot_state/conversions.h>
 
-// MoveIt
-#include <moveit/robot_model_loader/robot_model_loader.h>
-#include <moveit/planning_interface/planning_interface.h>
-#include <moveit/planning_scene/planning_scene.h>
-#include <moveit/kinematic_constraints/utils.h>
-#include <moveit_msgs/DisplayTrajectory.h>
-#include <moveit_msgs/PlanningScene.h>
+#include <geometry_msgs/PointStamped.h>
+
 #include <moveit_visual_tools/moveit_visual_tools.h>
 
-#include <boost/scoped_ptr.hpp>
-
-// Based on:
-// https://docs.fetchrobotics.com/manipulation.html
-// https://ros-planning.github.io/moveit_tutorials/doc/motion_planning_api/motion_planning_api_tutorial.html
+namespace rvt = rviz_visual_tools;
 
 int main(int argc, char** argv)
 {
-  const std::string node_name = "motion_planning_tutorial";
-  ros::init(argc, argv, node_name);
-  ros::AsyncSpinner spinner(1);
+  ros::init(argc, argv, "iksolver_ex");
+  ros::NodeHandle nh("/iksolver_ex");
+  ros::AsyncSpinner spinner(4);
   spinner.start();
-  ros::NodeHandle node_handle("~");
 
-  const std::string PLANNING_GROUP = "arm";
-  robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
-  const moveit::core::RobotModelPtr& robot_model = robot_model_loader.getModel();
-  /* Create a RobotState and JointModelGroup to keep track of the current robot pose and planning group*/
-  moveit::core::RobotStatePtr robot_state(new moveit::core::RobotState(robot_model));
-  const moveit::core::JointModelGroup* joint_model_group = robot_state->getJointModelGroup(PLANNING_GROUP);
+  // BEGIN_TUTORIAL
+  //
+  // Setup
+  // ^^^^^
+  //
+  static const std::string PLANNING_GROUP = "arm";
+  static const std::string LOGNAME = "moveit_cpp_tutorial";
 
-  // Using the :moveit_core:`RobotModel`, we can construct a :planning_scene:`PlanningScene`
-  // that maintains the state of the world (including the robot).
-  planning_scene::PlanningScenePtr planning_scene(new planning_scene::PlanningScene(robot_model));
+  /* Otherwise robot with zeros joint_states */
+  ros::Duration(1.0).sleep();
 
-  // Configure a valid robot state
-  planning_scene->getCurrentStateNonConst().setToDefaultValues(joint_model_group, "ready");
+  ROS_INFO_STREAM_NAMED(LOGNAME, "Starting MoveIt Tutorials...");
 
-  // We will now construct a loader to load a planner, by name.
-  // Note that we are using the ROS pluginlib library here.
-  boost::scoped_ptr<pluginlib::ClassLoader<planning_interface::PlannerManager>> planner_plugin_loader;
-  planning_interface::PlannerManagerPtr planner_instance;
-  std::string planner_plugin_name;
+  auto moveit_cpp_ptr = std::make_shared<moveit_cpp::MoveItCpp>(nh);
+  moveit_cpp_ptr->getPlanningSceneMonitor()->providePlanningSceneService();
 
-  // We will get the name of planning plugin we want to load
-  // from the ROS parameter server, and then load the planner
-  // making sure to catch all exceptions.
-  if (!node_handle.getParam("planning_plugin", planner_plugin_name))
-    ROS_FATAL_STREAM("Could not find planner plugin name");
-  try
-  {
-    planner_plugin_loader.reset(new pluginlib::ClassLoader<planning_interface::PlannerManager>(
-        "moveit_core", "planning_interface::PlannerManager"));
-  }
-  catch (pluginlib::PluginlibException& ex)
-  {
-    ROS_FATAL_STREAM("Exception while creating planning plugin loader " << ex.what());
-  }
-  try
-  {
-    planner_instance.reset(planner_plugin_loader->createUnmanagedInstance(planner_plugin_name));
-    if (!planner_instance->initialize(robot_model, node_handle.getNamespace()))
-      ROS_FATAL_STREAM("Could not initialize planner instance");
-    ROS_INFO_STREAM("Using planning interface '" << planner_instance->getDescription() << "'");
-  }
-  catch (pluginlib::PluginlibException& ex)
-  {
-    const std::vector<std::string>& classes = planner_plugin_loader->getDeclaredClasses();
-    std::stringstream ss;
-    for (const auto& cls : classes)
-      ss << cls << " ";
-    ROS_ERROR_STREAM("Exception while loading planner '" << planner_plugin_name << "': " << ex.what() << std::endl
-                                                         << "Available plugins: " << ss.str());
-  }
+  auto planning_components = std::make_shared<moveit_cpp::PlanningComponent>(PLANNING_GROUP, moveit_cpp_ptr);
+  auto robot_model_ptr = moveit_cpp_ptr->getRobotModel();
+  auto robot_start_state = planning_components->getStartState();
+  auto joint_model_group_ptr = robot_model_ptr->getJointModelGroup(PLANNING_GROUP);
 
   // Visualization
   // ^^^^^^^^^^^^^
-  moveit_visual_tools::MoveItVisualTools visual_tools("base_link");
-  visual_tools.loadRobotStatePub("/display_robot_state");
-  visual_tools.enableBatchPublishing();
-  visual_tools.deleteAllMarkers();  // clear all old markers
+  //
+  // The package MoveItVisualTools provides many capabilities for visualizing objects, robots,
+  // and trajectories in RViz as well as debugging tools such as step-by-step introspection of a script
+  moveit_visual_tools::MoveItVisualTools visual_tools("base_link", rvt::RVIZ_MARKER_TOPIC,
+                                                      moveit_cpp_ptr->getPlanningSceneMonitor());
+  visual_tools.deleteAllMarkers();
+  visual_tools.loadRemoteControl();
+
+  Eigen::Isometry3d text_pose = Eigen::Isometry3d::Identity();
+  text_pose.translation().z() = 1.75;
+  visual_tools.publishText(text_pose, "MoveItCpp Demo", rvt::WHITE, rvt::XLARGE);
   visual_tools.trigger();
 
-  // Pose Goal
-  // ^^^^^^^^^
-  // We will now create a motion plan request for the arm of the Panda
-  // specifying the desired pose of the end-effector as input.
-  visual_tools.publishRobotState(planning_scene->getCurrentStateNonConst(), rviz_visual_tools::GREEN);
-  visual_tools.trigger();
-  planning_interface::MotionPlanRequest req;
-  planning_interface::MotionPlanResponse res;
-  geometry_msgs::PoseStamped pose;
+  // Start the demo
+  // ^^^^^^^^^^^^^^^^^^^^^^^^^
+  visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to start the demo");
 
-  // TODO: THIS NEEDS TO BE CHANGED TO RECEIVE DATA FROM SENSOR
+  // Planning with MoveItCpp
+  // ^^^^^^^^^^^^^^^^^^^^^^^
+  // There are multiple ways to set the start and the goal states of the plan
+  // they are illustrated in the following plan examples
+  //
+  // Plan #1
+  // ^^^^^^^
+  //
+  // We can set the start state of the plan to the current state of the robot
+  planning_components->setStartStateToCurrentState();
 
-  pose.pose.position.x = 0;
-  pose.pose.position.y = 0.4;
-  pose.pose.position.z = 0.75;
-  //Does not change, always pointing 90 degrees
-  pose.pose.orientation.w = 1.0;
+  // The first way to set the goal of the plan is by using geometry_msgs::PoseStamped ROS message type as follow
+  geometry_msgs::PoseStamped target_pose1;
+  target_pose1.header.frame_id = "base_link";
+  target_pose1.pose.orientation.w = 1.0;
+  target_pose1.pose.position.x = 0.28;
+  target_pose1.pose.position.y = -0.2;
+  target_pose1.pose.position.z = 0.5;
+  planning_components->setGoal(target_pose1, "wrist_roll_link");
 
-  // A tolerance of 0.01 m is specified in position
-  // and 0.01 radians in orientation
-  std::vector<double> tolerance_pose(3, 0.01);
-  std::vector<double> tolerance_angle(3, 0.01);
+  // Now, we call the PlanningComponents to compute the plan and visualize it.
+  // Note that we are just planning
+  auto plan_solution1 = planning_components->plan();
 
-  moveit_msgs::Constraints pose_goal = kinematic_constraints::constructGoalConstraints("wrist_roll_link", pose, tolerance_pose, tolerance_angle);
-
-  req.group_name = PLANNING_GROUP;
-  req.goal_constraints.push_back(pose_goal);
-
-  // We now construct a planning context that encapsulate the scene,
-  // the request and the response. We call the planner using this
-  // planning context
-  planning_interface::PlanningContextPtr context = planner_instance->getPlanningContext(planning_scene, req, res.error_code_);
-  context->solve(res);
-  if (res.error_code_.val != res.error_code_.SUCCESS)
+  // Check if PlanningComponents succeeded in finding the plan
+  if (plan_solution1)
   {
-    ROS_ERROR("Could not compute plan successfully");
-    return 0;
+    // Visualize the start pose in Rviz
+    visual_tools.publishAxisLabeled(robot_start_state->getGlobalLinkTransform("wrist_roll_link"), "start_pose");
+    visual_tools.publishText(text_pose, "Start Pose", rvt::WHITE, rvt::XLARGE);
+    // Visualize the goal pose in Rviz
+    visual_tools.publishAxisLabeled(target_pose1.pose, "target_pose");
+    visual_tools.publishText(text_pose, "Goal Pose", rvt::WHITE, rvt::XLARGE);
+    // Visualize the trajectory in Rviz
+    visual_tools.publishTrajectoryLine(plan_solution1.trajectory, joint_model_group_ptr);
+    visual_tools.trigger();
+
+    /* Uncomment if you want to execute the plan */
+    /* planning_components->execute(); // Execute the plan */
   }
 
-  // Visualize the result
-  // ^^^^^^^^^^^^^^^^^^^^
-  ros::Publisher display_publisher = node_handle.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
-  moveit_msgs::DisplayTrajectory display_trajectory;
+  // Plan #1 visualization:
+  //
+  // .. image:: images/moveitcpp_plan1.png
+  //    :width: 250pt
+  //    :align: center
+  //
 
-  /* Visualize the trajectory */
-  moveit_msgs::MotionPlanResponse response;
-  res.getMessage(response);
+  // Start the next plan
+  visual_tools.deleteAllMarkers();
+  visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to continue the demo");
 
-  display_trajectory.trajectory_start = response.trajectory_start;
-  display_trajectory.trajectory.push_back(response.trajectory);
-  visual_tools.publishTrajectoryLine(display_trajectory.trajectory.back(), joint_model_group);
-  visual_tools.trigger();
-  display_publisher.publish(display_trajectory);
+  // Plan #2
+  // ^^^^^^^
+  //
+  // Here we will set the current state of the plan using
+  // moveit::core::RobotState
+  auto start_state = *(moveit_cpp_ptr->getCurrentState());
+  geometry_msgs::Pose start_pose;
+  start_pose.orientation.w = 1.0;
+  start_pose.position.x = 0.55;
+  start_pose.position.y = 0.0;
+  start_pose.position.z = 0.6;
 
-  /* Set the state in the planning scene to the final state of the last plan */
-  robot_state->setJointGroupPositions(joint_model_group, response.trajectory.joint_trajectory.points.back().positions);
-  planning_scene->setCurrentState(*robot_state.get());
+  start_state.setFromIK(joint_model_group_ptr, start_pose);
 
-  // Display the goal state
-  visual_tools.publishRobotState(planning_scene->getCurrentStateNonConst(), rviz_visual_tools::GREEN);
-  visual_tools.publishAxisLabeled(pose.pose, "goal_1");
-  visual_tools.trigger();
+  planning_components->setStartState(start_state);
 
+  // We will reuse the old goal that we had and plan to it.
+  auto plan_solution2 = planning_components->plan();
+  if (plan_solution2)
+  {
+    moveit::core::RobotState robot_state(robot_model_ptr);
+    moveit::core::robotStateMsgToRobotState(plan_solution2.start_state, robot_state);
 
-  // PRINT OUT JOINT VALUES
-  const std::vector<std::string>& joint_names = joint_model_group->getVariableNames();
-  std::vector<double> joint_values;
-  robot_state->copyJointGroupPositions(joint_model_group, joint_values);
-  for (std::size_t i = 0; i < joint_names.size(); ++i){
-    ROS_INFO("Joint %s: %f", joint_names[i].c_str(), joint_values[i]);
+    visual_tools.publishText(text_pose, "Start Pose", rvt::WHITE, rvt::XLARGE);
+    visual_tools.publishAxisLabeled(robot_state.getGlobalLinkTransform("wrist_roll_link"), "start_pose");
+    visual_tools.publishText(text_pose, "Goal Pose", rvt::WHITE, rvt::XLARGE);
+    visual_tools.publishAxisLabeled(target_pose1.pose, "target_pose");
+    visual_tools.publishTrajectoryLine(plan_solution2.trajectory, joint_model_group_ptr);
+    visual_tools.trigger();
+
+    /* Uncomment if you want to execute the plan */
+    /* planning_components->execute(); // Execute the plan */
   }
 
-  // PUBLISH THE DAMN JOINT TRAJ POINTS
-  ros::Publisher traj_pub = node_handle.advertise<moveit_msgs::MotionPlanResponse>("joint_pub", 1, true);
-  traj_pub.publish(response);
+  // Plan #2 visualization:
+  //
+  // .. image:: images/moveitcpp_plan2.png
+  //    :width: 250pt
+  //    :align: center
+  //
 
-  // THE TRAJECTORY ARRAY OF JOINT POSITIONS CAN BE FOUND HERE:
-  // http://docs.ros.org/en/noetic/api/moveit_msgs/html/msg/MotionPlanResponse.html
-  // http://docs.ros.org/en/kinetic/api/moveit_tutorials/html/doc/robot_model_an d_robot_state/robot_model_and_robot_state_tutorial.html
-  // response.trajectory.joint_trajectory.points
-  
-  return 0;
+  // Start the next plan
+  visual_tools.deleteAllMarkers();
+  visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to continue the demo");
+
+  // Plan #3
+  // ^^^^^^^
+  //
+  // We can also set the goal of the plan using
+  // moveit::core::RobotState
+  auto target_state = *robot_start_state;
+  geometry_msgs::Pose target_pose2;
+  target_pose2.orientation.w = 1.0;
+  target_pose2.position.x = 0.55;
+  target_pose2.position.y = -0.05;
+  target_pose2.position.z = 0.8;
+
+  target_state.setFromIK(joint_model_group_ptr, target_pose2);
+
+  planning_components->setGoal(target_state);
+
+  // We will reuse the old start that we had and plan from it.
+  auto plan_solution3 = planning_components->plan();
+  if (plan_solution3)
+  {
+    moveit::core::RobotState robot_state(robot_model_ptr);
+    moveit::core::robotStateMsgToRobotState(plan_solution3.start_state, robot_state);
+
+    visual_tools.publishText(text_pose, "Start Pose", rvt::WHITE, rvt::XLARGE);
+    visual_tools.publishAxisLabeled(robot_state.getGlobalLinkTransform("wrist_roll_link"), "start_pose");
+    visual_tools.publishText(text_pose, "Goal Pose", rvt::WHITE, rvt::XLARGE);
+    visual_tools.publishAxisLabeled(target_pose2, "target_pose");
+    visual_tools.publishTrajectoryLine(plan_solution3.trajectory, joint_model_group_ptr);
+    visual_tools.trigger();
+
+    /* Uncomment if you want to execute the plan */
+    /* planning_components->execute(); // Execute the plan */
+  }
+
+  // Plan #3 visualization:
+  //
+  // .. image:: images/moveitcpp_plan3.png
+  //    :width: 250pt
+  //    :align: center
+  //
+
+  // Start the next plan
+  visual_tools.deleteAllMarkers();
+  visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to continue the demo");
+
+  // Plan #4
+  // ^^^^^^^
+  //
+  // We can set the start state of the plan to the current state of the robot
+  // We can set the goal of the plan using the name of a group states
+  // for panda robot we have one named robot state for "panda_arm" planning group called "ready"
+  // see `panda_arm.xacro
+  // <https://github.com/ros-planning/panda_moveit_config/blob/melodic-devel/config/panda_arm.xacro#L13>`_
+
+  /* // Set the start state of the plan from a named robot state */
+  /* planning_components->setStartState("ready"); // Not implemented yet */
+  // Set the goal state of the plan from a named robot state
+  planning_components->setGoal("ready");
+
+  // Again we will reuse the old start that we had and plan from it.
+  auto plan_solution4 = planning_components->plan();
+  if (plan_solution4)
+  {
+    moveit::core::RobotState robot_state(robot_model_ptr);
+    moveit::core::robotStateMsgToRobotState(plan_solution4.start_state, robot_state);
+
+    visual_tools.publishText(text_pose, "Start Pose", rvt::WHITE, rvt::XLARGE);
+    visual_tools.publishAxisLabeled(robot_state.getGlobalLinkTransform("wrist_roll_link"), "start_pose");
+    visual_tools.publishText(text_pose, "Goal Pose", rvt::WHITE, rvt::XLARGE);
+    visual_tools.publishAxisLabeled(robot_start_state->getGlobalLinkTransform("wrist_roll_link"), "target_pose");
+    visual_tools.publishTrajectoryLine(plan_solution4.trajectory, joint_model_group_ptr);
+    visual_tools.trigger();
+
+    /* Uncomment if you want to execute the plan */
+    /* planning_components->execute(); // Execute the plan */
+  }
+
+  // Plan #4 visualization:
+  //
+  // .. image:: images/moveitcpp_plan4.png
+  //    :width: 250pt
+  //    :align: center
+  //
+
+  // END_TUTORIAL
+  visual_tools.deleteAllMarkers();
+  visual_tools.prompt("Press 'next' to end the demo");
+
+  ROS_INFO_STREAM_NAMED(LOGNAME, "Shutting down.");
+  ros::waitForShutdown();
 }
