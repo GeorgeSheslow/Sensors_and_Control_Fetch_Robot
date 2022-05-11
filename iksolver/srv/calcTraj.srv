@@ -1,0 +1,3 @@
+fetch_robot_sim/Location_3D req
+---
+moveit_msgs/RobotTrajectory res
