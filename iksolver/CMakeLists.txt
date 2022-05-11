@@ -31,7 +31,7 @@ find_package(catkin REQUIRED
 )
 
 find_package(Eigen3 REQUIRED)
-find_package(Boost REQUIRED EXACT 1.79.0 COMPONENTS system filesystem date_time thread)
+find_package(Boost REQUIRED) # EXACT 1.79.0 COMPONENTS system filesystem date_time thread)
 
 ###########
 ## Build ##
