@@ -33,3 +33,15 @@ Notes:
 
 1. Launch the robot state handler: ``roslaunch iksolver iksolver_ex.launch``
 2. Launch the robot planner for inverse kinematics: ``roslaunch iksolver iksolver_node.launch``
+
+# sensor
+
+
+In ~/catkin_ws do catkin build
+run source devel/setup.bash
+1. run ``cd src/Sensor_and_Control_Fetch_Robot/fetch_robot_sim/scripts``
+2. run ``python3 gui.py`` and press ``Grasp Prep``
+3. repeat steps 1-3 in another terminal
+4. run the code ``python3 sensor.py``
+5. watch magic unfold
+Notes: Use depth.py is integrated with sensor and is not needed x and y is accurate? z is not accurate at all as it depends the distacne from the object and the camera's

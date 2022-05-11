@@ -2,45 +2,35 @@
 
 #include <moveit_msgs/DisplayRobotState.h>
 #include <moveit_msgs/DisplayTrajectory.h>
-#include <moveit_msgs/AttachedCollisionObject.h>
-#include <moveit_msgs/CollisionObject.h>
 
 #include <moveit_visual_tools/moveit_visual_tools.h>
+#include <ros/init.h>
 #include <ros/service_server.h>
+#include <ros/spinner.h>
 #include <ros/subscriber.h>
 #include <std_msgs/String.h>
 
 #include "iksolver/calcTraj.h"
 
-// Global Parameters
-float x = 0.0;
-float y = 0.0;
-float z = 0.0;
-
-moveit::planning_interface::MoveGroupInterface move_group_interface("arm");
-const moveit::core::JointModelGroup* joint_model_group =
-      move_group_interface.getCurrentState()->getJointModelGroup("arm");
-
 bool calcTraj(iksolver::calcTraj::Request &req,
-          iksolver::calcTraj::Response& res){
+          iksolver::calcTraj::Response &res){
 
   ROS_INFO("Calculate Trajectory Request Received.");
+  ROS_INFO("Requested to move to:");
+  ROS_INFO("x:  %f", req.coords.x);
+  ROS_INFO("y:  %f", req.coords.y);
+  ROS_INFO("z:  %f", req.coords.z);
 
-  /* ********
-  // Account for base movements
-  // const Eigen::Affine3d &sensor_state = move_group_interface.getCurrentState()->getGlobalLinkTransform("head_tilt_link");
-  
-  // Print end-effector pose
-  // ROS_INFO_STREAM("Translation: " << sensor_state.translation());
-  // ROS_INFO_STREAM("Rotation: " << sensor_state.rotation());
-  ******** */
+  moveit::planning_interface::MoveGroupInterface move_group_interface("arm");
+  const moveit::core::JointModelGroup* joint_model_group =
+      move_group_interface.getCurrentState()->getJointModelGroup("arm");
 
   // Extract request from sensor
   geometry_msgs::Pose target_pose1;
   target_pose1.orientation.w = 1.0;
-  target_pose1.position.x = req.x;
-  target_pose1.position.y = req.y;
-  target_pose1.position.z = req.z;
+  target_pose1.position.x = req.coords.x;
+  target_pose1.position.y = req.coords.y;
+  target_pose1.position.z = req.coords.z;
   move_group_interface.setPoseTarget(target_pose1);
   
   // calculate trajectory
@@ -54,28 +44,22 @@ bool calcTraj(iksolver::calcTraj::Request &req,
   move_group_interface.execute(my_plan);
 
   // Return calculated trajectory
-  res = my_plan.trajectory_;
+  res.traj = my_plan.trajectory_;
 
   return true;
 
 }
 
-// void loc3D(const fetch_robot_sim::Location_3D::ConstPtr &msg){
-//   x = msg->x;
-//   y = msg->y;
-//   z = msg->z;
-//   ROS_INFO("%f, %f, %f", x, y, z);
-//   return;
-// }
-
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "iksolver_ex");
   ros::NodeHandle node_handle;
+  ros::AsyncSpinner spinner(2);
+  spinner.start();
 
-  // service 
   ros::ServiceServer service = node_handle.advertiseService("calc_traj", calcTraj);
-  // ros::Subscriber test = node_handle.subscribe("/distance", 10, loc3D);
-  ros::spin();
+  ROS_INFO("iksolver service has started");
+  
+  ros::waitForShutdown();
   return 0;
 }
