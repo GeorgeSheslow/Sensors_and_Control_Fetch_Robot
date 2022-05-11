@@ -25,6 +25,15 @@ bool calcTraj(iksolver::calcTraj::Request &req,
   const moveit::core::JointModelGroup* joint_model_group =
       move_group_interface.getCurrentState()->getJointModelGroup("arm");
 
+    /* ********
+  // Account for base movements
+  // const Eigen::Affine3d &sensor_state = move_group_interface.getCurrentState()->getGlobalLinkTransform("head_tilt_link");
+  
+  // Print end-effector pose
+  // ROS_INFO_STREAM("Translation: " << sensor_state.translation());
+  // ROS_INFO_STREAM("Rotation: " << sensor_state.rotation());
+  ******** */
+
   // Extract request from sensor
   geometry_msgs::Pose target_pose1;
   target_pose1.orientation.w = 1.0;
