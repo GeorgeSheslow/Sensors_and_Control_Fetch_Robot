@@ -6,21 +6,23 @@
 #include <moveit_msgs/CollisionObject.h>
 
 #include <moveit_visual_tools/moveit_visual_tools.h>
+#include <ros/service_server.h>
 #include <ros/subscriber.h>
+#include <std_msgs/String.h>
 
-#include "fetch_robot_sim/Location_3D.h"
-#include "iksolver/Location_3D.h"
+#include "iksolver/calcTraj.h"
 
 // Global Parameters
 float x = 0.0;
 float y = 0.0;
 float z = 0.0;
+
 moveit::planning_interface::MoveGroupInterface move_group_interface("arm");
 const moveit::core::JointModelGroup* joint_model_group =
       move_group_interface.getCurrentState()->getJointModelGroup("arm");
 
-bool calcTraj(fetch_robot_sim::Location_3DConstPtr &req,
-          moveit_msgs::RobotTrajectory &res){
+bool calcTraj(iksolver::calcTraj::Request &req,
+          iksolver::calcTraj::Response& res){
 
   ROS_INFO("Calculate Trajectory Request Received.");
 
@@ -36,11 +38,11 @@ bool calcTraj(fetch_robot_sim::Location_3DConstPtr &req,
   // Extract request from sensor
   geometry_msgs::Pose target_pose1;
   target_pose1.orientation.w = 1.0;
-  target_pose1.position.x = req->x;
-  target_pose1.position.y = req->y;
-  target_pose1.position.z = req->z;
+  target_pose1.position.x = req.x;
+  target_pose1.position.y = req.y;
+  target_pose1.position.z = req.z;
   move_group_interface.setPoseTarget(target_pose1);
-
+  
   // calculate trajectory
   moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 
@@ -58,6 +60,13 @@ bool calcTraj(fetch_robot_sim::Location_3DConstPtr &req,
 
 }
 
+// void loc3D(const fetch_robot_sim::Location_3D::ConstPtr &msg){
+//   x = msg->x;
+//   y = msg->y;
+//   z = msg->z;
+//   ROS_INFO("%f, %f, %f", x, y, z);
+//   return;
+// }
 
 int main(int argc, char** argv)
 {
@@ -66,7 +75,7 @@ int main(int argc, char** argv)
 
   // service 
   ros::ServiceServer service = node_handle.advertiseService("calc_traj", calcTraj);
-
+  // ros::Subscriber test = node_handle.subscribe("/distance", 10, loc3D);
   ros::spin();
   return 0;
 }
