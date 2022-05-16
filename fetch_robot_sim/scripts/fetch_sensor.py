@@ -235,9 +235,9 @@ class RGBD_Detection:
             #print(robotPos)
             #print(yaw)
             
-            self.posLocalGlobal.x = self.locationPos.z * math.acos(yaw) + robotPos.x #z shows the depth
-            self.posLocalGlobal.y = self.locationPos.x * math.asin(yaw) + robotPos.y #x is width
-            self.posLocalGlobal.z = self.locationPos.y + robotPos.z #y is the hight
+            self.posLocalGlobal.x = self.locationPos.z * math.acos(yaw) #+ robotPos.x #z shows the depth
+            self.posLocalGlobal.y = self.locationPos.x * math.asin(yaw) #+ robotPos.y #x is width
+            self.posLocalGlobal.z = self.locationPos.y #+ robotPos.z #y is the hight
             self.location_3D.publish(self.posLocalGlobal)
             # print(self.posLocalGlobal)
             self.sync = 0

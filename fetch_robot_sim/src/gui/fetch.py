@@ -160,6 +160,8 @@ class Robot:
     def getArmPose(self):
         return self.joint_positions
 
+    def updateJoints(self,positions):
+        self.joint_positions = positions
     def execute_arm_update(self):
 
         trajectory = JointTrajectory()

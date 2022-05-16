@@ -2,6 +2,7 @@
 
 import os
 import sys
+from urllib import response
 
 from python_qt_binding import loadUi
 import rospy
@@ -17,13 +18,15 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import QTimer
 
-from fetch_robot_sim.msg import RGB_Image_Info
-from std_msgs.msg import String
 from gui.teleop import TeleOp
 from gui.camera_viz import Cameras
 from gui.fetch import Robot
 
-
+from fetch_robot_sim.msg import RGB_Image_Info
+from fetch_robot_sim.msg import Location_3D
+from std_msgs.msg import String
+from iksolver.srv import calcTraj
+from moveit_msgs.msg import RobotTrajectory
 class GUI(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -37,7 +40,8 @@ class GUI(QWidget):
         # Subs
         self.detect_object_request = rospy.Publisher("/object_detect_request", String, queue_size=10)
         self.detect_object_feedback =rospy.Subscriber("/object_info", RGB_Image_Info, self.obj_info_callback)
-        
+        self.distance_to_object =rospy.Subscriber("/distance", Location_3D, self.obj_distance)
+        self.obj_distance = Location_3D()
 
         self.fetch = Robot("Fetchy")
 
@@ -59,6 +63,9 @@ class GUI(QWidget):
         self.timer.setInterval(1000) # 1 second
         self.timer.timeout.connect(self.check_obj_request)
         self.timer.start()
+    def obj_distance(self,data):
+        self.obj_distance = data
+        self.obj_detect_info_2_label.setText(str("Robot Frame(x,y,z): ") + str(data.x) + str(", ")+ str(data.y) + str(", ")+ str(data.z) + str(", "))
 
     def check_obj_request(self):
         self.detect_object_request.publish(self.comboBox.currentText())
@@ -80,14 +87,28 @@ class GUI(QWidget):
         pass
 
     def kinematics_finder(self):
-        pass
+        print("IK service")
+        rospy.wait_for_service('calc_traj')
+        try:
+            trajectory = rospy.ServiceProxy('calc_traj', calcTraj)
+            self.obj_distance.z = 0.5
+            self.obj_distance.x = 0.7
+            self.obj_distance.y = 0
+            response = trajectory(self.obj_distance)
+            
+            print("success")
+            # joints = RobotTrajectory()
+            # joints = response.joint_trajectory.points
+            print(str(response.traj))
+            print(str(response.traj.joint_trajectory.points[-1].positions))
+            self.gripper_pose_info.setText(str(response.traj.joint_trajectory.points[-1].positions))
+            self.fetch.updateJoints(response.traj.joint_trajectory.points[-1].positions)
+        except rospy.ServiceException as e:
+            print("Service call failed: %s"%e)
+
 
     def grasp_obj(self):
-        x = self.grasp_x.text()
-        y = self.grasp_y.text()
-        z = self.grasp_z.text()
-        print("sending: " + x + ", " + y + ", " + z)
-        self.fetch.grasp(x,y,z)
+        self.fetch.execute_arm_update()
 
     def obj_info_callback(self, data):
         self.obj_detect_label.setText("Obj Detected:  " + str(data.objectName))

@@ -54,7 +54,7 @@ class TeleOp(QWidget):
         self.J4_Slider.setValue(self.jointMath(3, self.fetch.currentJointStates[9]))
         self.J5_Slider.setValue(self.jointMath(4, self.fetch.currentJointStates[10]))
         self.J6_Slider.setValue(self.jointMath(5, self.fetch.currentJointStates[11]))
-        self.J7_Slider.setValue(self.jointMath(6, self.fetch.currentJointStates[12]))
+        # self.J7_Slider.setValue(self.jointMath(6, self.fetch.currentJointStates[12]))
 
         self.Head_Slider.setValue(self.fetch.currentJointStates[5])
 

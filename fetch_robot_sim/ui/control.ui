@@ -208,7 +208,7 @@
       <item>
        <widget class="QLabel" name="gripper_pose_info">
         <property name="text">
-         <string>(x,y,z):</string>
+         <string/>
         </property>
        </widget>
       </item>

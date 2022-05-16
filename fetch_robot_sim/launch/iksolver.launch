@@ -1,9 +1,0 @@
-<launch>
-
-  <node name="fetch_iksolver" pkg="fetch_robot_sim" type="iksolver_ex" respawn="false" output="screen">
-    <rosparam command="load" file="$(find fetch_moveit_config)/config/kinematics.yaml"/>
-    <param name="/planning_plugin" value="ompl_interface/OMPLPlanner"/>
-    <rosparam command="load" file="$(find fetch_moveit_config)/config/ompl_planning.yaml"/>
-  </node>
-
-</launch>
