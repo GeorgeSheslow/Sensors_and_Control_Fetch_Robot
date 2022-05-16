@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
+
 import os
 import sys
 import rospy
 from PyQt5 import uic, QtCore, QtWidgets, QtGui
-
+from python_qt_binding import loadUi
 import sys
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -16,19 +18,21 @@ from PyQt5.QtWidgets import (
     QWidget,
     QFileDialog,
 )
-
+from python_qt_binding import loadUi
 from PyQt5 import uic
 
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
 import roslib
-
-
+import rospkg
 class Cameras(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
-        uic.loadUi("gui_widgets/ui/cameras.ui", self)
+        rp = rospkg.RosPack()
+        package_path = rp.get_path('fetch_robot_sim')
+        ui_file = os.path.join(package_path, "ui", "cameras.ui")
+        loadUi(ui_file, self)
         self.show()
 
         self.thread = QThread()

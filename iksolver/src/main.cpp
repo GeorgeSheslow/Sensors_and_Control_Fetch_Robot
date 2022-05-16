@@ -18,7 +18,7 @@
 
 int main(int argc, char** argv)
 {
-  const std::string node_name = "motion_planning_tutorial";
+  const std::string node_name = "fetch_iksolver";
   ros::init(argc, argv, node_name);
   ros::AsyncSpinner spinner(1);
   spinner.start();
