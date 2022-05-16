@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 from tkinter import Y
 import cv2
 import sys
@@ -13,9 +15,9 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import String, Float64MultiArray, Float32
 from cv_bridge import CvBridge, CvBridgeError
 
-from fetch_robot_sim.msg import Object_Info
-from fetch_robot_sim.msg import Location
-from fetch_robot_sim.msg import Location_3D
+from fetch_messages.msg import Object_Info
+from fetch_messages.msg import Location
+from fetch_messages.msg import Location_3D
 
 # Create an object to read camera video
 class RGBD_Detection:
@@ -189,3 +191,13 @@ if __name__ == "__main__":
 
     while not rospy.is_shutdown():
         rospy.spin()
+
+
+# work out transformation math
+
+# find 0,0,0 of robot gripper position
+# 
+
+# Camera frame -> global frame (function of focal length, x,y,z)
+# Global frame -> robot frame (x,y,z) + (rpy) (custom message)
+# 

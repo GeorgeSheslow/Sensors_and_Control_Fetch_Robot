@@ -28,10 +28,11 @@ find_package(catkin REQUIRED
     tf2_ros
     tf2_eigen
     tf2_geometry_msgs
+    fetch_robot_sim
 )
 
 find_package(Eigen3 REQUIRED)
-find_package(Boost REQUIRED EXACT 1.79.0 COMPONENTS system filesystem date_time thread)
+find_package(Boost REQUIRED) # EXACT 1.79.0 COMPONENTS system filesystem date_time thread)
 
 ###########
 ## Build ##

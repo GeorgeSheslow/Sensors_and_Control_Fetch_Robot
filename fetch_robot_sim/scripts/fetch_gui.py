@@ -2,7 +2,7 @@
 
 import os
 import sys
-
+from python_qt_binding import loadUi
 import rospy
 import time
 from PyQt5 import uic, QtCore, QtWidgets, QtGui
@@ -13,21 +13,23 @@ from PyQt5.QtWidgets import (
     QWidget,
     QFileDialog,
 )
+from fetch_messages.msg import Obj_Detect
+from gui.teleop import TeleOp
+from gui.camera_viz import Cameras
+from gui.fetch import Robot
 
-from gui_widgets.teleop import TeleOp
-from gui_widgets.camera_viz import Cameras
-from gui_widgets.fetch import Robot
 
-from fetch_robot_sim.msg import Obj_Detect
-
+import rospkg
 
 class GUI(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
         rospy.init_node("gui", anonymous=True)
-
-        uic.loadUi("gui_widgets/ui/control.ui", self)
+        rp = rospkg.RosPack()
+        package_path = rp.get_path('fetch_robot_sim')
+        ui_file = os.path.join(package_path, "ui", "control.ui")
+        loadUi(ui_file, self)
 
         # Subs
         self.obj_info = rospy.Subscriber(
@@ -51,7 +53,7 @@ class GUI(QWidget):
 
     def grasp_prep(self):
         self.fetch.reset_arm()
-        for i in range(22):
+        for i in range(12):
             self.fetch.execute_twist(0.1, 0)
             time.sleep(0.3)
 
@@ -68,7 +70,11 @@ class GUI(QWidget):
         pass
 
     def grasp_obj(self):
-        pass
+        x = self.grasp_x.text()
+        y = self.grasp_y.text()
+        z = self.grasp_z.text()
+        print("sending: " + x + ", " + y + ", " + z)
+        self.fetch.grasp(x,y,z)
 
     def obj_info_callback(self, data):
         self.obj_detect_label.setText("Obj Detected:  " + str(data.obj_name))

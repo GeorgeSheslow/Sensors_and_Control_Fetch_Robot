@@ -1,0 +1,5 @@
+<launch>
+
+<node name="fetch_obj_detection" pkg="obj_detect" type="find_obj.py" output="screen" />
+
+</launch>

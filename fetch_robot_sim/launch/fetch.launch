@@ -27,10 +27,6 @@ args="-file $(find fetch_robot_sim)/models/cylinder/cylinder.sdf -sdf -x 1.5 -y 
 
   <!-- Oh, you wanted a robot? -->
   <include file="$(find fetch_gazebo)/launch/include/$(arg robot).launch.xml" />
-<!-- <node name="fetch_control" pkg="fetch_robot_sim" type="gui.py" /> -->
-<include file="$(find fetch_moveit_config)/launch/move_group.launch"/>
-
-<!-- Integrate all files to be launched here -->
-
+<!-- <include file="$(find fetch_moveit_config)/launch/move_group.launch"/> -->
 
 </launch>

@@ -1,33 +1,25 @@
 cmake_minimum_required(VERSION 3.7.2)
 project(fetch_robot_sim)
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 find_package(catkin REQUIRED)
-find_package(Boost REQUIRED EXACT 1.79.0)
+find_package(Boost REQUIRED)
 find_package(gazebo REQUIRED)
 
-
-find_package(catkin
-  REQUIRED
+find_package(catkin REQUIRED
+  COMPONENTS
     gazebo_ros
     fetch_gazebo
     roscpp
     rospy
     std_msgs
-    message_generation
-
+    sensor_msgs
+    tf2_geometry_msgs
+    fetch_messages 
 )
 
-add_message_files(
-  FILES
-  Obj_Detect.msg
-  Location.msg
-  Location_3D.msg
-  Object_Info.msg
-)
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
 
 include_directories(
   include
@@ -37,73 +29,37 @@ include_directories(
 )
 
 link_directories(
+  ${CATKIN_INCLUDE_DIRS}
   ${GAZEBO_LIBRARY_DIRS}
 )
 
 catkin_package(
-  CATKIN_DEPENDS message_runtime
+  LIBRARIES
+    fetch_gazebo_plugin
+  INCLUDE_DIRS
+  CATKIN_DEPENDS 
+    message_runtime
 )
 
 
-# catkin_package(
-#   CATKIN_DEPENDS
-#     control_toolbox
-#     gazebo_plugins
-#     gazebo_ros
-#     robot_controllers
-#     robot_controllers_interface
-#   LIBRARIES
-#     fetch_gazebo_plugin
-#   INCLUDE_DIRS
-#     include
-# )
+catkin_python_setup()
 
-# add_library(fetch_gazebo_plugin src/plugin.cpp)
-# target_link_libraries(fetch_gazebo_plugin
-#   ${catkin_LIBRARIES}
-#   ${GAZEBO_LIBRARIES}
-# )
 
-# install(
-#   TARGETS fetch_gazebo_plugin
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
+catkin_install_python(PROGRAMS scripts/fetch_sensor.py
+                              scripts/fetch_gui.py
 
-# install(
-#   DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-# )
+DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-# install(
-#   PROGRAMS
-#     scripts/prepare_simulated_robot.py
-#     scripts/prepare_simulated_robot_pick_place.py
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-# catkin_install_python(PROGRAMS
-#   scripts/test.py
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scripts)
-
-# install(
-#   DIRECTORY config include launch robots worlds models
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
-
-# install(
-#   DIRECTORY config include launch robots worlds models
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
 
 install(DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
   PATTERN ".svn" EXCLUDE
 )
-
-install(DIRECTORY urdf/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/urdf
+install(DIRECTORY models/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/models
+  PATTERN ".svn" EXCLUDE
+)
+install(DIRECTORY ui/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ui
   PATTERN ".svn" EXCLUDE
 )

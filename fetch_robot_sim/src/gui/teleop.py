@@ -1,9 +1,11 @@
+#!/usr/bin/env python3
+
 import os
 import sys
 
 import rospy
 import actionlib
-
+from python_qt_binding import loadUi
 from sensor_msgs.msg import JointState
 
 from PyQt5 import uic, QtCore, QtWidgets, QtGui
@@ -17,12 +19,16 @@ from PyQt5.QtWidgets import (
 
 from PyQt5 import uic
 
+import rospkg
 
 class TeleOp(QWidget):
     def __init__(self, gui, fetch, parent=None) -> None:
         super().__init__(parent)
         self.gui = gui
-        uic.loadUi("gui_widgets/ui/teleop.ui", self)
+        rp = rospkg.RosPack()
+        package_path = rp.get_path('fetch_robot_sim')
+        ui_file = os.path.join(package_path, "ui", "teleop.ui")
+        loadUi(ui_file, self)
         self.show()
 
         self.fetch = fetch
