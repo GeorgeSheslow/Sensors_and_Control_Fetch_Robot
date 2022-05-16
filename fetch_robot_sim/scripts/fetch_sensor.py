@@ -65,8 +65,8 @@ class RGBD_Detection:
             # Convert BGR to HSV
             hsv = cv2.cvtColor(cap, cv2.COLOR_BGR2HSV)
             # define blue colour range
-            light_blue = np.array([100, 150, 0], np.uint8)
-            dark_blue = np.array([140, 255, 255], np.uint8)
+            light_blue = np.array([102, 50, 0], np.uint8)
+            dark_blue = np.array([255, 140, 140], np.uint8)
 
             # Threshold the HSV image to get only blue colours
             blue_mask = cv2.inRange(hsv, light_blue, dark_blue)
@@ -162,7 +162,7 @@ class RGBD_Detection:
                 #Drawing the rectangle
                 for pic, contour in enumerate(contours):
                     area = cv2.contourArea(contour)
-                    if area > 300:
+                    if area > 100:
                         x, y, w, h = cv2.boundingRect(contour)
                         cap = cv2.rectangle(cap, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
