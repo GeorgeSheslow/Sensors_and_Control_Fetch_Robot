@@ -49,9 +49,15 @@ class Robot:
         ]
         # Joint Inital Positions
         self.joint_positions = [0.0, -0.62, 0, 0, 0.0, 0.62, 0.0]
+
         # Saved Joint Positions
         self.joint_zero_position = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        self.joint_pre_grasp_position = [1.57, 0.7, 0.0, -2.0, 0.0, -0.57, 0.0]
+        self.joint_pre_grasp_position = [1.57, 0.3, 0.0, -2.0, 0.0, -0.57, 0.0]
+
+        self.joint_bin_position = [-1.23, 0.75, -1.67, 0.75, 0.36, -2.04, 1.04]
+
+        self.joint_pre_grab = [-0.612, 0.32, -1.076, -2.064, 0.0495, 1.3777, 0.98]
+
 
         self.jointMax = [
             math.pi / 2,
@@ -123,7 +129,45 @@ class Robot:
         self.torso_joint_names = ["torso_lift_joint"]
         self.torso_joint_positions = [0]
 
-        # self.reset_arm()
+        self.reset_arm()
+        self.update_head(30)
+
+    def preGrasp(self):
+        self.joint_positions = self.joint_pre_grab
+        self.execute_arm_update()        
+    def binObj(self):
+        current_states = list(self.joint_positions)
+        current_states[1] = -0.25
+        self.joint_positions = tuple(current_states)
+        self.execute_arm_update()
+        current_states = list(self.joint_positions)
+        current_states[0] = -1.35
+        self.joint_positions = tuple(current_states)
+        self.execute_arm_update()
+        self.update_gripper(100)
+        self.joint_positions = self.joint_pre_grab
+        self.execute_arm_update()
+
+    def pick_obj(self):
+        current_states = list(self.joint_positions)
+        save = current_states[1]
+        current_states[1] = -0.3
+        self.joint_positions = tuple(current_states)
+        self.execute_arm_update()
+        current_states[1] = save
+        self.joint_positions = tuple(current_states)
+        self.execute_arm_update()
+        self.update_gripper(100)
+
+    def grasp_seq(self):
+        current_states = list(self.joint_positions)
+        save = current_states[1]
+        current_states[1] = -0.35
+        self.joint_positions = tuple(current_states)
+        self.execute_arm_update()
+        current_states[1] = save
+        self.joint_positions = tuple(current_states)
+        self.execute_arm_update()
 
     def jointCallback(self, data):
         self.currentJointStates = data.position
@@ -154,7 +198,7 @@ class Robot:
 
     def update_gripper(self, pos):
         # map 0 -> 99 to required range
-        self.gripper_position = pos / 100 * 0.05
+        self.gripper_position = pos / 100 * 0.09
         self.execute_gripper_update()
 
     def getArmPose(self):
@@ -162,6 +206,7 @@ class Robot:
 
     def updateJoints(self,positions):
         self.joint_positions = positions
+
     def execute_arm_update(self):
 
         trajectory = JointTrajectory()
@@ -170,14 +215,14 @@ class Robot:
         trajectory.points[0].positions = self.joint_positions
         trajectory.points[0].velocities = [0.0] * len(self.joint_positions)
         trajectory.points[0].accelerations = [0.0] * len(self.joint_positions)
-        trajectory.points[0].time_from_start = rospy.Duration(1.0)
+        trajectory.points[0].time_from_start = rospy.Duration(4.0)
 
         arm_goal = FollowJointTrajectoryGoal()
         arm_goal.trajectory = trajectory
-        arm_goal.goal_time_tolerance = rospy.Duration(0.0)
+        arm_goal.goal_time_tolerance = rospy.Duration(10.0)
 
         self.arm_client.send_goal(arm_goal)
-        self.arm_client.wait_for_result(rospy.Duration(5.0))
+        self.arm_client.wait_for_result(rospy.Duration(15.0))
 
     def execute_head_update(self):
         trajectory = JointTrajectory()
@@ -186,7 +231,7 @@ class Robot:
         trajectory.points[0].positions = self.head_joint_positions
         trajectory.points[0].velocities = [0.0] * len(self.head_joint_positions)
         trajectory.points[0].accelerations = [0.0] * len(self.head_joint_positions)
-        trajectory.points[0].time_from_start = rospy.Duration(5.0)
+        trajectory.points[0].time_from_start = rospy.Duration(0.1)
 
         head_goal = FollowJointTrajectoryGoal()
         head_goal.trajectory = trajectory
@@ -202,7 +247,7 @@ class Robot:
         trajectory.points[0].positions = self.torso_joint_positions
         trajectory.points[0].velocities = [0.0] * len(self.torso_joint_positions)
         trajectory.points[0].accelerations = [0.0] * len(self.torso_joint_positions)
-        trajectory.points[0].time_from_start = rospy.Duration(5.0)
+        trajectory.points[0].time_from_start = rospy.Duration(0.1)
 
         print(self.torso_joint_positions[0])
         torso_goal = FollowJointTrajectoryGoal()

@@ -1,5 +1,4 @@
 <launch>
 
     <node name="fetch_gui" pkg="fetch_robot_sim" type="fetch_gui.py" output="screen"/>
-    <node name="fetch_obj_detection" pkg="fetch_robot_sim" type="fetch_sensor.py" output="screen" />
 </launch>

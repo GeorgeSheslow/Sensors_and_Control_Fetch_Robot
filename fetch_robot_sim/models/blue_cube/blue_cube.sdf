@@ -1,10 +1,10 @@
 <?xml version="1.0" ?>
 <sdf version='1.4'>
-  <model name="large_cube">      
+  <model name="small_cube">      
       <static>0</static>
       <link name='link'>
         <inertial>
-          <mass>0.25</mass>
+          <mass>0.1</mass>
           <inertia>
             <ixx>0.001</ixx>
             <ixy>0.000000</ixy>
@@ -17,7 +17,7 @@
         <collision name='collision'>
           <geometry>
             <box>
-              <size>0.050 0.050 0.050</size>
+              <size>0.035 0.035 0.045</size>
             </box>
           </geometry>
           <surface>
@@ -40,13 +40,13 @@
         <visual name='visual'>
           <geometry>
             <box>
-              <size>0.050 0.050 0.050</size>
+              <size>0.035 0.035 0.045</size>
             </box>
           </geometry>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Green</name>
+              <name>Gazebo/Blue</name>
             </script>
           </material>
         </visual>

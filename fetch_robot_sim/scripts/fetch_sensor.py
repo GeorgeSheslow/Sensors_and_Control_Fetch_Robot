@@ -20,6 +20,7 @@ from std_msgs.msg import String, Float64MultiArray, Float32
 from cv_bridge import CvBridge, CvBridgeError
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseStamped #, PoseWithConvariance, TwistWithConvariance
+from gazebo_msgs.msg import ModelStates
 from fetch_robot_sim.msg import RGB_Image_Info
 from fetch_robot_sim.msg import Location_3D
 
@@ -35,12 +36,15 @@ class RGBD_Detection:
         self.image_sub = rospy.Subscriber("/head_camera/rgb/image_raw", Image, self.cameraRGBCallBack)        
         self.depth_sub = rospy.Subscriber("/head_camera/depth_registered/image_raw",Image,self.cameraDepthCallBack)
         self.odom_sub = rospy.Subscriber("/odom",Odometry,self.calculationsCallBack)
+        
 
         self.obj_detect_request = rospy.Subscriber("/object_detect_request",String,self.objRequest)
         self.obj_find = "Small Cube"
         #Publishers
         self.detect_object = rospy.Publisher("/object_info", RGB_Image_Info, queue_size=10)
         self.location_3D = rospy.Publisher("/distance",Location_3D, queue_size=10)
+        self.obj_location_3D = rospy.Publisher("/obj_distance",Location_3D, queue_size=10)
+        self.ub = rospy.Subscriber("/gazebo/model_states",ModelStates,self.obj_info)
         self.bounding_image = rospy.Publisher("/bounding_image",Image, queue_size=10)
         # self.bounding_image1 = rospy.Publisher("/bounding_image1",Image, queue_size=10)
         
@@ -98,7 +102,7 @@ class RGBD_Detection:
 
             # Find the things 
             obj_info_msg = RGB_Image_Info()
-            if(self.obj_find == str("Cylinder")):
+            if(self.obj_find == str("Red Cylinder"))or (self.obj_find == str("All")):
                 # Creating contour to track red colour for cylinder
                 contours, hierarchy = cv2.findContours(
                     red_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
@@ -117,7 +121,7 @@ class RGBD_Detection:
                         self.midPoints.y = y + (h / 2)
                         obj_info_msg.x = self.midPoints.x
                         obj_info_msg.y = self.midPoints.y
-                        obj_info_msg.objectName = "Cylinder"
+                        obj_info_msg.objectName = "Red Cylinder"
                         #Text on the rectangle
                         cv2.putText(
                             cap,
@@ -127,7 +131,7 @@ class RGBD_Detection:
                             1.0,
                             (0, 0, 255),
                         )
-            if(self.obj_find == str("Large Cube")):
+            if(self.obj_find == str("Green Cube")) or (self.obj_find == str("All")):
                 # print("Finding large cube")
                 # Creating contour to track green colour for large cube
                 contours, hierarchy = cv2.findContours(
@@ -144,17 +148,17 @@ class RGBD_Detection:
                         self.midPoints.y = y + (h / 2)
                         obj_info_msg.x = self.midPoints.x
                         obj_info_msg.y = self.midPoints.y
-                        obj_info_msg.objectName = "Large Cube"
+                        obj_info_msg.objectName = "Green Cube"
                         #Text on the rectangle
                         cv2.putText(
                             cap,
-                            "Green Large Cube",
+                            "Green Cube",
                             (x, y),
                             cv2.FONT_HERSHEY_SIMPLEX,
                             1.0,
                             (0, 255, 0),
                         )
-            if(self.obj_find == str("Small Cube")):
+            if(self.obj_find == str("Blue Cube"))or (self.obj_find == str("All")):
                 # Creating contour to track blue colour for blue cube
                 contours, hierarchy = cv2.findContours(
                     blue_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
@@ -171,12 +175,12 @@ class RGBD_Detection:
                         self.midPoints.y = y + (h / 2)                        
                         obj_info_msg.x = self.midPoints.x
                         obj_info_msg.y = self.midPoints.y
-                        obj_info_msg.objectName = "Small Cube"
+                        obj_info_msg.objectName = "Blue Cube"
                         
                         #Text on the rectangle
                         cv2.putText(
                             cap,
-                            "Blue Small Cube",
+                            "Blue Cube",
                             (x, y),
                             cv2.FONT_HERSHEY_SIMPLEX,
                             1.0,
@@ -215,6 +219,26 @@ class RGBD_Detection:
                     self.sync = 0 
             else:
                 self.sync = 0
+    def obj_info(self,data):
+        pos = Location_3D()
+        i = 0
+        for item in data.name:
+            if((str(item) == "blue_cube") and (self.obj_find == str("Blue Cube"))):
+                pos.x = data.pose[i].position.x
+                pos.y = data.pose[i].position.y
+                pos.z = data.pose[i].position.z
+            if((str(item) == "green_cube") and (self.obj_find == str("Green Cube"))):
+                pos.x = data.pose[i].position.x
+                pos.y = data.pose[i].position.y
+                pos.z = data.pose[i].position.z
+            if((str(item) == "cylinder") and (self.obj_find == str("Red Cylinder"))):
+                pos.x = data.pose[i].position.x
+                pos.y = data.pose[i].position.y
+                pos.z = data.pose[i].position.z
+            i += 1
+        self.location_3D.publish(pos)
+
+
 
     def calculationsCallBack(self,data):
         if self.sync == 2:
@@ -235,10 +259,10 @@ class RGBD_Detection:
             #print(robotPos)
             #print(yaw)
             
-            self.posLocalGlobal.x = self.locationPos.z * math.acos(yaw) #+ robotPos.x #z shows the depth
-            self.posLocalGlobal.y = self.locationPos.x * math.asin(yaw) #+ robotPos.y #x is width
+            self.posLocalGlobal.x = self.locationPos.z * math.acos(yaw) - robotPos.x #z shows the depth
+            self.posLocalGlobal.y = self.locationPos.x * math.asin(yaw) - robotPos.y #x is width
             self.posLocalGlobal.z = self.locationPos.y #+ robotPos.z #y is the hight
-            self.location_3D.publish(self.posLocalGlobal)
+            self.obj_location_3D.publish(self.posLocalGlobal)
             # print(self.posLocalGlobal)
             self.sync = 0
 

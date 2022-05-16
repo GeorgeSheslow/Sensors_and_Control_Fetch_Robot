@@ -1,24 +1,24 @@
 <launch>
 
  <!-- Specify the config files to use -->
-    <rosparam ns="iksolver_ex" command="load" file="$(find moveit_tutorials)/doc/moveit_cpp/config/moveit_cpp.yaml" />
+    <rosparam ns="iksolver_ex" command="load" file="$(find iksolver)/docs/moveit_cpp.yaml" />
 
     <!-- Load the URDF, SRDF and other .yaml configuration files on the param server -->
-    <include file="$(find iksolver)/launch/iksolver_planning_context.launch">
-        <arg name="load_robot_description" value="true"/>
-    </include>
+    <!-- <include file="$(find iksolver)/launch/iksolver_planning_context.launch"> -->
+        <!-- <arg name="load_robot_description" value="true"/> -->
+    <!-- </include> -->
 
     <!-- If needed, broadcast static tf for robot root -->
     
 
     <!-- We do not have a robot connected, so publish fake joint states -->
-    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-        <param name="/use_gui" value="true"/>
-        <rosparam param="/source_list">[/move_group/fake_controller_joint_states]</rosparam>
-    </node>
+    <!-- <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"> -->
+        <!-- <param name="/use_gui" value="true"/> -->
+        <!-- <rosparam param="/source_list">[/move_group/fake_controller_joint_states]</rosparam> -->
+    <!-- </node> -->
     
     <!-- Given the published joint states, publish tf for the robot links -->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
+    <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" /> -->
 
     <!-- Run the main MoveIt executable without trajectory execution (we do not have controllers configured by default) -->
     <arg name="pipeline" default="$(optenv PLANNING_PIPELINE ompl)" />
@@ -30,7 +30,7 @@
     </include>
 
     <!-- If needed, broadcast static tf for robot root -->
-    <node pkg="tf2_ros" type="static_transform_publisher" name="virtual_joint_broadcaster_1" args="0 0 0 0 0 0 world base_link" />
+    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="virtual_joint_broadcaster_1" args="0 0 0 0 0 0 world base_link" /> -->
 
     <node name="iksolver_ex" pkg="iksolver" type="iksolver_ex" respawn="false" output="screen"/>
 </launch>

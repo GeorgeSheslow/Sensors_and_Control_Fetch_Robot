@@ -50,7 +50,7 @@ bool calcTraj(iksolver::calcTraj::Request &req,
   }
 
   // Update robot model to reflect new state
-  move_group_interface.execute(my_plan);
+  // move_group_interface.execute(my_plan);
 
   // Return calculated trajectory
   res.traj = my_plan.trajectory_;

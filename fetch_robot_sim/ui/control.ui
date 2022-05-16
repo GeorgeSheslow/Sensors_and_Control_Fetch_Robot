@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>314</width>
-    <height>651</height>
+    <height>772</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -126,6 +126,23 @@
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="status_label_2">
+        <property name="text">
+         <string>Robot Pose:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="robot_pose_label">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="verticalSpacer_5">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -142,17 +159,22 @@
        <widget class="QComboBox" name="comboBox">
         <item>
          <property name="text">
-          <string>Small Cube</string>
+          <string>Blue Cube</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Large Cube</string>
+          <string>Green Cube</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Cylinder</string>
+          <string>Red Cylinder</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>All</string>
          </property>
         </item>
        </widget>
@@ -174,7 +196,34 @@
       <item>
        <widget class="QLabel" name="obj_detect_info_2_label">
         <property name="text">
-         <string>Robot Frame(x,y,z):</string>
+         <string>Local Frame(x,y,z):</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="obj_detect_info_2_label_2">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="sensor_frame">
+        <property name="text">
+         <string>Sensor Frame(x,y,z):</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="obj_detect_info_2_label_4">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -190,6 +239,41 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="sensor_frame_2">
+        <property name="text">
+         <string>IK Solver Tester:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frame_2">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QCheckBox" name="checkbox">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="x_label"/>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="y_label"/>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="z_label"/>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="Kinematics_Button">
@@ -220,6 +304,20 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="bin_button">
+        <property name="text">
+         <string>Throw Object</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pick_button">
+        <property name="text">
+         <string>Pick and Place Object</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="verticalSpacer_3">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -231,6 +329,13 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="reset_button">
+        <property name="text">
+         <string>Reset Simulator</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

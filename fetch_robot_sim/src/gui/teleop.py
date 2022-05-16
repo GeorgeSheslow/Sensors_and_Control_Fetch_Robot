@@ -46,20 +46,9 @@ class TeleOp(QWidget):
         self.Bellow_Slider.sliderReleased.connect(self.robo_torso_update)
         self.Gripper_Slider.sliderReleased.connect(self.robo_gripper_update)
 
-        # Update Sliders
 
-        self.J1_Slider.setValue(self.jointMath(0, self.fetch.currentJointStates[6]))
-        self.J2_Slider.setValue(self.jointMath(1, self.fetch.currentJointStates[7]))
-        self.J3_Slider.setValue(self.jointMath(2, self.fetch.currentJointStates[8]))
-        self.J4_Slider.setValue(self.jointMath(3, self.fetch.currentJointStates[9]))
-        self.J5_Slider.setValue(self.jointMath(4, self.fetch.currentJointStates[10]))
-        self.J6_Slider.setValue(self.jointMath(5, self.fetch.currentJointStates[11]))
-        # self.J7_Slider.setValue(self.jointMath(6, self.fetch.currentJointStates[12]))
-
-        self.Head_Slider.setValue(self.fetch.currentJointStates[5])
-
-        self.Bellow_Slider.setValue(100 * (self.fetch.currentJointStates[2] / 0.4))
-
+        self.update_sliders()
+        
         # Set gripper to open
         self.fetch.update_gripper(100)
         self.Gripper_Slider.setValue(100)
@@ -69,6 +58,20 @@ class TeleOp(QWidget):
         self.CCW_Button.clicked.connect(self.moveCCW)
         self.CW_Button.clicked.connect(self.moveCW)
 
+    def update_sliders(self):
+        # Update Sliders
+
+        self.J1_Slider.setValue(self.jointMath(0, self.fetch.currentJointStates[6]))
+        self.J2_Slider.setValue(self.jointMath(1, self.fetch.currentJointStates[7]))
+        self.J3_Slider.setValue(self.jointMath(2, self.fetch.currentJointStates[8]))
+        self.J4_Slider.setValue(self.jointMath(3, self.fetch.currentJointStates[9]))
+        self.J5_Slider.setValue(self.jointMath(4, self.fetch.currentJointStates[10]))
+        self.J6_Slider.setValue(self.jointMath(5, self.fetch.currentJointStates[11]))
+        self.J7_Slider.setValue(self.jointMath(6, self.fetch.currentJointStates[12]))
+
+        self.Head_Slider.setValue(self.fetch.currentJointStates[5])
+
+        self.Bellow_Slider.setValue(100 * (self.fetch.currentJointStates[2] / 0.4))
     def jointMath(self, jointNum, val):
         m = 1 / (self.fetch.jointMax[jointNum] - self.fetch.jointMin[jointNum])
         b = -m * self.fetch.jointMin[jointNum]
