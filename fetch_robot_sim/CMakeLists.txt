@@ -17,9 +17,10 @@ find_package(catkin REQUIRED
     std_msgs
     sensor_msgs
     tf2_geometry_msgs
-    fetch_messages 
+    message_generation
 )
 
+catkin_python_setup()
 
 include_directories(
   include
@@ -33,16 +34,16 @@ link_directories(
   ${GAZEBO_LIBRARY_DIRS}
 )
 
-catkin_package(
-  LIBRARIES
-    fetch_gazebo_plugin
-  INCLUDE_DIRS
-  CATKIN_DEPENDS 
-    message_runtime
+add_message_files(
+  FILES
+  Location_3D.msg
+  RGB_Image_Info.msg
 )
 
-
-catkin_python_setup()
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 
 catkin_install_python(PROGRAMS scripts/fetch_sensor.py
@@ -50,6 +51,13 @@ catkin_install_python(PROGRAMS scripts/fetch_sensor.py
 
 DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+catkin_package(
+  LIBRARIES
+    fetch_gazebo_plugin
+  INCLUDE_DIRS
+  CATKIN_DEPENDS 
+    message_runtime
+)
 
 install(DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch

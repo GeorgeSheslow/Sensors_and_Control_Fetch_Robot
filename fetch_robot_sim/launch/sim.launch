@@ -30,6 +30,9 @@ args="-file $(find fetch_robot_sim)/models/cylinder/cylinder.sdf -sdf -x 1.5 -y 
 <!-- <node name="fetch_control" pkg="fetch_robot_sim" type="gui.py" /> -->
 <include file="$(find fetch_moveit_config)/launch/move_group.launch"/>
 
+
+  <node name="fetch_gui" pkg="fetch_robot_sim" type="fetch_gui.py" output="screen"/>
+  <node name="fetch_obj_detection" pkg="fetch_robot_sim" type="fetch_sensor.py" output="screen" />
 <!-- Integrate all files to be launched here -->
 
 

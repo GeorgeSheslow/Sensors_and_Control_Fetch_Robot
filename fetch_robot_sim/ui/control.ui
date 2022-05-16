@@ -92,16 +92,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="Estop_Button">
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(239, 41, 41);</string>
-        </property>
-        <property name="text">
-         <string>EStop</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="Arm_Reset_Button">
         <property name="text">
          <string>Reset Arm</string>
@@ -129,7 +119,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="status_label">
         <property name="text">
          <string>Status:</string>
         </property>
@@ -149,30 +139,22 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Executing:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer_6">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="Find_Obj_Button">
-        <property name="text">
-         <string>Scan for Object</string>
-        </property>
+       <widget class="QComboBox" name="comboBox">
+        <item>
+         <property name="text">
+          <string>Small Cube</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Large Cube</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Cylinder</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item>
@@ -183,23 +165,16 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="obj_camera">
+       <widget class="QLabel" name="obj_detect_info_label">
         <property name="text">
-         <string>Obj Camera Pose (x,y,z):</string>
+         <string>Image Frame(x,y):</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="obj_camera_label">
+       <widget class="QLabel" name="obj_detect_info_2_label">
         <property name="text">
-         <string>values NA</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="obj_robot_label">
-        <property name="text">
-         <string>Obj Robot Pose:</string>
+         <string>Robot Frame(x,y,z):</string>
         </property>
        </widget>
       </item>
@@ -224,31 +199,17 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="gripper_pose_label">
         <property name="text">
          <string>Gripper Pose:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="frame_2">
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
+       <widget class="QLabel" name="gripper_pose_info">
+        <property name="text">
+         <string>(x,y,z):</string>
         </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLineEdit" name="grasp_x"/>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="grasp_y"/>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="grasp_z"/>
-         </item>
-        </layout>
        </widget>
       </item>
       <item>

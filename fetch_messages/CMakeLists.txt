@@ -17,10 +17,8 @@ find_package(catkin REQUIRED
 
 add_message_files(
   FILES
-  Obj_Detect.msg
-  Location.msg
   Location_3D.msg
-  Object_Info.msg
+  RGB_Image_Info.msg
 )
 
 add_service_files(

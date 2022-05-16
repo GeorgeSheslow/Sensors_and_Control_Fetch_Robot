@@ -15,7 +15,7 @@
   <build_depend>angles</build_depend>
   <build_depend>gazebo_dev</build_depend>
   <build_depend>fetch_gazebo</build_depend>
-
+  <build_depend>message_generation</build_depend> 
   <depend>control_toolbox</depend>
   <depend>boost</depend>
   <depend>gazebo_plugins</depend>
@@ -28,6 +28,7 @@
   <depend>rospy</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
+  <depend>moveit_msgs</depend>
 
   <build_depend>qt5-qmake</build_depend>
   <exec_depend>python_qt_binding</exec_depend>
