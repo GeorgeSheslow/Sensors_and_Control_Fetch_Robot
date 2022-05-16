@@ -11,7 +11,11 @@ Tasks Broken Down into:
 - IK solver
 - Inteegrstion and testing
 
+Packages:
 
+- fetch_gazebo
+- fetch_robot_sim (GUI, sim and obj_detect) - python
+- iksolver - cpp
 Software:
 
 - Ubuntu 20.04
