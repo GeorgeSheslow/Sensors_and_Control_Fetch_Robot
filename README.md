@@ -1,5 +1,17 @@
 # Sensors_and_Control_Fetch_Robot
 
+High Level:
+
+Have Fetch Robot grasp simple shapes
+
+Tasks Broken Down into:
+
+- GUI and simulation code
+- object detection
+- IK solver
+- Inteegrstion and testing
+
+
 Software:
 
 - Ubuntu 20.04
@@ -12,9 +24,6 @@ Packages:
 
 - Ensure all dependicies are downloaded
 
-# fetch_robot_sim
-
-1. Try roslaunch fetch_gazebo simulation.launch
 
 # iksolver
 
