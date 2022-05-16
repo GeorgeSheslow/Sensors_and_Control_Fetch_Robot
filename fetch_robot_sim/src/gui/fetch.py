@@ -130,7 +130,7 @@ class Robot:
         self.torso_joint_positions = [0]
 
         self.reset_arm()
-        self.update_head(30)
+        self.update_head(50)
 
     def preGrasp(self):
         self.joint_positions = self.joint_pre_grab
@@ -154,6 +154,7 @@ class Robot:
         current_states[1] = -0.3
         self.joint_positions = tuple(current_states)
         self.execute_arm_update()
+        self.update_torso(20)
         current_states[1] = save
         self.joint_positions = tuple(current_states)
         self.execute_arm_update()

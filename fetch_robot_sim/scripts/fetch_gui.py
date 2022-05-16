@@ -105,7 +105,6 @@ class GUI(QWidget):
     def pick_obj(self):
         self.status_label.setText("Status: Picking and Placing Object")
         self.fetch.pick_obj()
-        self.fetch.update_torso(30)
         self.teleop.update_sliders()
         self.status_label.setText("Status: Ready")
     def bin_obj(self):

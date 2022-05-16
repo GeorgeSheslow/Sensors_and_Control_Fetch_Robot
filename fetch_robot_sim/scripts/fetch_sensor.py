@@ -69,8 +69,8 @@ class RGBD_Detection:
             # Convert BGR to HSV
             hsv = cv2.cvtColor(cap, cv2.COLOR_BGR2HSV)
             # define blue colour range
-            light_blue = np.array([100, 150, 0], np.uint8)
-            dark_blue = np.array([140, 255, 255], np.uint8)
+            light_blue = np.array([102, 50, 0], np.uint8)
+            dark_blue = np.array([255, 140, 140], np.uint8)
 
             # Threshold the HSV image to get only blue colours
             blue_mask = cv2.inRange(hsv, light_blue, dark_blue)
@@ -259,9 +259,10 @@ class RGBD_Detection:
             #print(robotPos)
             #print(yaw)
             
-            self.posLocalGlobal.x = self.locationPos.z * math.acos(yaw) - robotPos.x #z shows the depth
-            self.posLocalGlobal.y = self.locationPos.x * math.asin(yaw) - robotPos.y #x is width
-            self.posLocalGlobal.z = self.locationPos.y #+ robotPos.z #y is the hight
+            self.posLocalGlobal.x = self.locationPos.z + 0.11  #z shows the depth
+            if self.locationPos.z > 0:
+                self.posLocalGlobal.y = ((self.locationPos.x / self.posLocalGlobal.x)*1.09) #x is width
+                self.posLocalGlobal.z = ((self.locationPos.y / self.posLocalGlobal.x)*1.09) + 0.64#y is the hight
             self.obj_location_3D.publish(self.posLocalGlobal)
             # print(self.posLocalGlobal)
             self.sync = 0
