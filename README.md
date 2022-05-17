@@ -10,7 +10,7 @@ Packages:
 
 - download fetch_gazebo and add to catkin_ws
 
-- Ensure all dependicies are downloaded
+- Ensure all dependicies are downloaded (including PyQt5, python3)
 
 # fetch_robot_sim
 
