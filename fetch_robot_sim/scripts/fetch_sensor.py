@@ -27,11 +27,28 @@ from fetch_robot_sim.msg import Location_3D
 from std_msgs.msg import String
 # Create an object to read camera video
 class RGBD_Detection:
+    """
+    This Class uses the header RGB-D camera to detect the object and visual servoing
+    This Class also communicates with the GUI in order send information across. This information is sent via publishing to ROS
+    
+    Custom message files 'Location_3D' and 'RGB_Image_Info' are used 
+    Can be used to detect colours and object
+    
+    Function cameraRGBCallBack searches for the Red, Green or Blue objects using the camera given with the fetch robot.
+    This function deals with the visual servoing and draws rectangle using the points x,y,w,h. Using these data middle points are calculated and sent to cameraDepthCallback
+    
+    Function cameraDepthCallBack recieves x,y (in pixels) coordinates of the middle point of the object it is targeting from cameraRGBCallBack.
+    As depth camera requests the x,y coordinates (from top left corner to bottom right corner) similar to RGB camera.
+    It sends x y and z in m. x being perpendicular to the robot, y egin the height and z being the depth
+    
+    Funtion calculationsCallBack recieves the data from the cameraDepthCallBack and transfroms them into global coordinate frame.
+    x is the ddepth, y is perpendicular and z is the hight.
+    """
     def __init__(self):
         self.bridge_object = CvBridge()
         
         self.sync = 0 #when sync = 0 it runs RGB, sync = 1 Depth
-
+    
         #Subscribers
         self.image_sub = rospy.Subscriber("/head_camera/rgb/image_raw", Image, self.cameraRGBCallBack)        
         self.depth_sub = rospy.Subscriber("/head_camera/depth_registered/image_raw",Image,self.cameraDepthCallBack)
