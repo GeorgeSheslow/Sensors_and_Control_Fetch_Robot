@@ -61,6 +61,7 @@ The main files fetch_sensor.py and it is used for RGB-D sensor and calculations 
 
 Input:
 - Location_3D (float32, float32, float32)
+
 Output:
 - trajectory_msgs
 
