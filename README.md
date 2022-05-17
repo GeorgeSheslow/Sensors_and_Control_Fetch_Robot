@@ -29,7 +29,7 @@ Software:
 2. roslaunch iksolver iksolver_node.launch
 3. Start the simulation by pressing the "start" button in the gazebo window
 
-# Simulation Envrionment
+# Simulation Environment
 
 The system is run in the gazebo simulator.
 The fetch.launch file launches gazebo empty world, fetch robot, table and grasping objects (Red Cylinder, Green Cube and Blue Cube)
@@ -66,11 +66,3 @@ MoveIT:
 - Fix dependancies with ``rosdep install --from-paths src --ignore-src -r -y``
 - Set up catkin build parameters with ``catkin config --cmake-args -DCATKIN_ENABLE_TESTING=0``
 - Must be compiled with: ``catkin build``
-
-Notes:
-- All packages MUST contain a "include" folder, whether or not it would be empty anyway.
-- catkin build MUST be used rather than catkin_make
-
-1. Launch the robot state handler: ``roslaunch iksolver iksolver_ex.launch``
-2. Launch the robot planner for inverse kinematics: ``roslaunch iksolver iksolver_node.launch``
-
