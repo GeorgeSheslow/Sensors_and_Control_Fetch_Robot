@@ -51,9 +51,9 @@ On top of this there are additional files stated below:
 
 # Object Detection
 Object Detection is run with the GUI and is updated every time the robot is not moving.
-RGBD camera from the Fetch robot is used for object detection and visual servoing. 
-RBG camera is used to detect the object and visual servoing whilst returning the center point of the object. It also labels the objects.
-OpenCV is used for the locations in the camera and the colours. The locations origin (0,0) is on the top left of the camera and x being the horizonal axis and y rhing the vertical axis.
+RGB-D camera from the Fetch robot is used for object detection and visual servoing. 
+RGB camera is used to detect the object and visual servoing whilst returning the center point of the object. It also labels the objects.
+OpenCV is used for the locations in the camera and the colours. The locations origin (0,0) is on the top left of the camera and x being the horizonal axis and y being the vertical axis.
 
 The main files fetch_sensor.py and it is used for RGB-D sensor and calculations and reurns x,y,z for the inverse kinematics solver to solve.
 
