@@ -22,6 +22,14 @@ from PyQt5 import uic
 import rospkg
 
 class TeleOp(QWidget):
+    """
+    Class TeleOp allows user via GUI to update joints of the fetch robot
+
+    Methods:
+    Sliders control joint positions of fetch arm, camera head and bellows
+    Buttons control the robot's base movements
+
+    """
     def __init__(self, gui, fetch, parent=None) -> None:
         super().__init__(parent)
         self.gui = gui

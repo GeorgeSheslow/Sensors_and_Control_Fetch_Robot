@@ -30,6 +30,20 @@ from sensor_msgs.msg import JointState
 
 
 class Robot:
+    """
+    Class the handle fetch robot ROS messages and joint positions
+
+    Program Flow:
+    Subscribe to fetch robot topics
+    create lists of joint names and positions to used in the class
+    create joint limits for teleop commands
+    create links to all controllers needed for moving the fetch robot
+    
+    Methods:
+    - arm_reset, pre-grasp pose, pickObj -> hard coded position values for arm to travel too.
+    - update commands for GUI teleop mode and methods listed above
+    - execute commands send the ROS messages to move the robot include arm, head, base and bellows
+    """
     def __init__(self, robot_name):
         # self.grasping = Grasp()
         self.twist_pub = rospy.Publisher("cmd_vel", Twist, queue_size=1)

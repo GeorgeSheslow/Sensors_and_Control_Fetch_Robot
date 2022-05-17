@@ -26,6 +26,18 @@ import cv2
 import roslib
 import rospkg
 class Cameras(QWidget):
+    """
+    Class for bounding image visulisation on the GUI via a QWidget
+
+    Program Flow:
+
+    Load the PyQt5 ui file
+    Create subscriptions to image topic from the object detection node
+    Create thread of class image_convertor to handle image topic visulisation
+
+    Method ImageUpdateSlot links ros image topic with widget
+    
+    """
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
 

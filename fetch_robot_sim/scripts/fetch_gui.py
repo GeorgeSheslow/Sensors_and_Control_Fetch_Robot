@@ -29,6 +29,13 @@ from iksolver.srv import calcTraj
 from moveit_msgs.msg import RobotTrajectory
 from std_srvs.srv import Empty
 class GUI(QWidget):
+    """
+    Class GUI is the main qwidget for user interaction
+    Loads required ui files and creates objects of the files listed in the src/gui folder
+
+    GUI buttons are linked the methods in the class to execute the command through the files listed in the src/gui folder
+    Also subscribes to topics from iksolver and object_detect to either run the service (iksolver) or display information (object_detect)
+    """
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
