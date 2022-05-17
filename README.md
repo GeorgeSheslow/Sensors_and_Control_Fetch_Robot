@@ -65,10 +65,11 @@ Input:
 Output:
 - trajectory_msgs
 
+It should be noted that upon receiving a goal pose request that is not feasible (out of range or self-collision), an error will be returned instead.
 
 iksolver is a rosservice used to calculate a trajectory from the robot's current position to a requested position.
 This service runs with name ``/calc_traj``. This can be seen with ``rosservice info /calc_traj``
-It can be tested with ``rosservice call /calc_traj [0.66,0.00033,0.27]``
+It can be tested with ``rosservice call /calc_traj [x,y,z]`` where ``x``, ``y``, and ``z`` are floats representing cartersian coordinates of the requested goal position of the end effector.
 
 The iksolver uses the ``MoveIt!`` software package for calculation and robot state preservation. The robot state is handled by the ``RobotModel`` and ``RobotState`` components provided by MoveIt! and the robot model (including its parameters and limits) is provided by the ``fetch-ros`` package. The calculation of inverse kinematics is handled using the ``PlanningGroup`` and ``MoveGroup`` classes of MoveIt!. The MoveGroup component receives the requested coordinates and converts the request into a pose goal request can be interpreted by the PlanningGroup. The PlanningGroup receives this request and forwards it to the ``MotionPlanningPipeline`` where the joint parameters, velocities, accelerations, and positions are calculated using the ``Open Motion Planning Library`` (OMPL), an open source library of motion planning algorithms. This calculation is finally then return by the service as a ``trajectory_msgs``.
 
