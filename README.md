@@ -50,7 +50,11 @@ On top of this there are additional files stated below:
 - cameras.py handles the bounding image display on the GUI, this is run on a thread to reduce latency in the GUI
 
 # Object Detection
+Object Detection is run with the GUI and is updated every time the robot is not moving.
+RGBD camera from the Fetch robot is used for object detection and visual servoing. 
+RBG camera is used to detect the object and visual servoing whilst returning the center point of the object. It also labels the objects.
 
+The main files fetch_sensor.py and it is used for RGB-D sensor and calculations and reurns x,y,z for the inverse kinematics solver to solve.
 
 # Inverse Kinematics Solver
 
