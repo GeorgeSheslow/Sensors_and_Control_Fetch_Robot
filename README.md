@@ -1,22 +1,58 @@
 # Sensors_and_Control_Fetch_Robot
 
+High Level:
+
+Have Fetch Robot grasp simple shapes
+
+Tasks Broken Down into:
+
+- GUI and simulation code
+- object detection
+- IK solver
+- Inteegrstion and testing
+
+Packages:
+
+- fetch_gazebo (download via github)
+- fetch_robot_sim (GUI, sim and obj_detect) - python
+- iksolver - cpp
+
 Software:
 
 - Ubuntu 20.04
 - ROS Noetic
 - Gazebo 11
 
-Packages:
+# How to run:
+*Ensure you have run "catkin build" and "source devel/setup.bash" beforehand
+1. roslaunch fetch_robot_sim fetch.launch
+2. roslaunch iksolver iksolver_node.launch
+3. Start the simulation by pressing the "start" button in the gazebo window
 
-- download fetch_gazebo and add to catkin_ws
+# Simulation Envrionment
 
-- Ensure all dependicies are downloaded
+The system is run in the gazebo simulator.
+The fetch.launch file launches gazebo empty world, fetch robot, table and grasping objects (Red Cylinder, Green Cube and Blue Cube)
+Grasping objects and table was created by ourselves.
+The fetch robot was taken from the fetch_gazebo package
+On top of this there are launch files for each node and whole package for testing.
 
-# fetch_robot_sim
+# GUI
 
-1. Try roslaunch fetch_gazebo simulation.launch
+The GUI is able to teleop the robot, send arm commands, display detected object information and run the inverse kinematics solver.
+The GUI was created in python using PyQt5 was is a better option than the MATLAB GUI option.
+The GUI was a key component when intergrating and debugging the system.
 
-# iksolver
+The GUI consists of the main gui.py file which controls the user inputs.
+On top of this there are additional files stated below:
+- fetch.py which takes control of the robot arm joint positions and ros messages to control the fetch robot
+- teleop.py handles the user teleop input via sliders and buttons
+- cameras.py handles the bounding image display on the GUI, this is run on a thread to reduce latency in the GUI
+
+# Object Detection
+
+
+# Inverse Kinematics Solver
 
 iksolver is a rosservice used to calculate a trajectory from the robot's current position to a requested position.
 This service runs with name ``/calc_traj``. This can be seen with ``rosservice info /calc_traj``
@@ -38,14 +74,3 @@ Notes:
 1. Launch the robot state handler: ``roslaunch iksolver iksolver_ex.launch``
 2. Launch the robot planner for inverse kinematics: ``roslaunch iksolver iksolver_node.launch``
 
-# sensor
-
-
-In ~/catkin_ws do catkin build
-run source devel/setup.bash
-1. run ``cd src/Sensor_and_Control_Fetch_Robot/fetch_robot_sim/scripts``
-2. run ``python3 gui.py`` and press ``Grasp Prep``
-3. repeat steps 1-3 in another terminal
-4. run the code ``python3 sensor.py``
-5. watch magic unfold
-Notes: Use depth.py is integrated with sensor and is not needed x and y is accurate? z is not accurate at all as it depends the distacne from the object and the camera's
