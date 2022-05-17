@@ -64,10 +64,6 @@ This service runs with name ``/calc_traj``. This can be seen with ``rosservice i
 It can be tested with ``rosservice call /calc_traj [0.66,0.00033,0.27]``
 
 MoveIT:
-- In catkin_ws/src/moveit/moveit_ros/planning/planning_components_tools/CMakeLists.txt, comment out lines 17 to 22
-- Comment the line 75 in file catkin_ws/src/moveit_tutorials/CMakeLists.txt
-- rviz_visual_tools must be installed.
-- Boost must be installed
 - Fix dependancies with ``rosdep install --from-paths src --ignore-src -r -y``
 - Set up catkin build parameters with ``catkin config --cmake-args -DCATKIN_ENABLE_TESTING=0``
 - Must be compiled with: ``catkin build``
